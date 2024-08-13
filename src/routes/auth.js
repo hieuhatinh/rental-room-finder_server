@@ -5,8 +5,7 @@ import passport from 'passport'
 
 const authRouter = express.Router()
 
-authRouter.get('/login', authController.login)
-
+// login
 authRouter.get('/google', passport.authenticate('google', ['profile', 'email']))
 
 authRouter.get(
@@ -14,23 +13,19 @@ authRouter.get(
     passport.authenticate('google', {
         failureRedirect: '/auth/login/failed',
         successRedirect: process.env.CLIENT_URL,
-    })
+    }),
 )
 
-authRouter.get('/login/failed', (req, res) => {
-    res.status(401).json({
-        error: true,
-        message: 'login failed',
-    })
-})
+authRouter.post('/login/tenant/local', authController.loginWithEmail)
 
-authRouter.get('/login/success', (req, res) => {
-    res.status(200).json({
-        user: req.user,
-        success: true,
-        message: 'thafnh coong',
-    })
-})
+// register/login failed/success
+authRouter.get('/login/failed', authController.loginFailed)
+authRouter.get('/register/failed', authController.registerFailed)
+
+authRouter.get('/login/success', authController.loginSuccess)
+
+// register
+authRouter.post('/register/tenant/local', authController.registerWithEmail)
 
 // authRouter.get('/info', (req, res) => {
 //     console.log(req.user)
@@ -39,7 +34,7 @@ authRouter.get('/login/success', (req, res) => {
 //     })
 // })
 
-
+// logout
 authRouter.get('/logout', (req, res) => {
     req.logout(function (err) {
         if (err) {

@@ -2,7 +2,7 @@ import passport from 'passport'
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
 import * as dotenv from 'dotenv'
 
-import { createNewUser, getAuth } from './models/index.js'
+import { UserModel } from '../models/index.js'
 
 dotenv.config()
 
@@ -15,7 +15,9 @@ passport.use(
             scope: ['profile', 'email'],
         },
         async function (accessToken, refreshToken, profile, cb) {
-            const existingUser = await getAuth({ email: profile._json.email })
+            const existingUser = await UserModel.getAuth({
+                email: profile._json.email,
+            })
             if (existingUser[0]) {
                 if (existingUser.hashPassword) {
                     cb(null, false, {
@@ -24,11 +26,11 @@ passport.use(
                 }
                 cb(null, profile)
             } else {
-                await createNewUser({
+                await UserModel.createNewUser({
                     email: profile._json.email,
                     googleId: profile.id,
                     avatar: profile._json.picture,
-                    fullName: profile._json.name
+                    fullName: profile._json.name,
                 })
                 cb(null, profile)
             }
