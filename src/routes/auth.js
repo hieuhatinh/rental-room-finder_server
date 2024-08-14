@@ -16,7 +16,7 @@ authRouter.get(
     }),
 )
 
-authRouter.post('/login/tenant/local', authController.loginWithEmail)
+authRouter.post('/login/tenant', authController.loginWithUsername)
 
 // register/login failed/success
 authRouter.get('/login/failed', authController.loginFailed)
@@ -25,7 +25,7 @@ authRouter.get('/register/failed', authController.registerFailed)
 authRouter.get('/login/success', authController.loginSuccess)
 
 // register
-authRouter.post('/register/tenant/local', authController.registerWithEmail)
+authRouter.post('/register/tenant', authController.registerWithUsername)
 
 // authRouter.get('/info', (req, res) => {
 //     console.log(req.user)

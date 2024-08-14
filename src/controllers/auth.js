@@ -29,15 +29,14 @@ const registerFailed = (req, res) => {
     })
 }
 
-const loginWithEmail = async (req, res) => {
+const loginWithUsername = async (req, res) => {
     try {
-        const { email, password } = req.body
+        const { username, password } = req.body
         const user = await authResponsitories.loginForTenant({
-            email,
+            username,
             password,
         })
         if (user) {
-            console.log(user)
             req.session.user = user
             req.session.save((err) => {
                 if (err) {
@@ -51,11 +50,11 @@ const loginWithEmail = async (req, res) => {
     }
 }
 
-const registerWithEmail = async (req, res) => {
+const registerWithUsername = async (req, res) => {
     try {
-        const { email, password } = req.body
+        const { username, password } = req.body
         const result = await authResponsitories.registerForTenant({
-            email,
+            username,
             password,
         })
         return res.status(200).json({
@@ -75,6 +74,6 @@ export default {
     loginSuccess,
     loginFailed,
     registerFailed,
-    loginWithEmail,
-    registerWithEmail,
+    loginWithUsername,
+    registerWithUsername,
 }
