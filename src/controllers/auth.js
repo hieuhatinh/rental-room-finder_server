@@ -1,18 +1,19 @@
 import { authResponsitories } from '../responsitories/index.js'
 
-const loginSuccess = (req, res) => {
-    if (req.user || req.session.user) {
-        return res.status(200).json({
-            user: req.user || req.session.user,
-            success: true,
-            message: 'Thành công',
-        })
-    } else {
-        return res.status(400).json({
-            error: true,
-            message: 'Đăng nhập thất bại',
-        })
-    }
+const loginSuccess = async (req, res) => {
+    const token = await jwt.sign(
+        { id: req.user.id_user },
+        process.env.PRIVATE_KEY_JWT,
+    )
+
+    console.log(req.user)
+
+    return res.status(200).json({
+        user: req.user,
+        token: token,
+        success: true,
+        message: 'Đăng nhập thành công',
+    })
 }
 
 const loginFailed = (req, res) => {
@@ -38,12 +39,7 @@ const loginWithUsername = async (req, res) => {
         })
         if (user) {
             req.session.user = user
-            req.session.save((err) => {
-                if (err) {
-                    console.error('Lỗi khi lưu session:', err)
-                }
-            })
-            return res.status(200).send(user)
+            return res.status(200)
         }
     } catch (error) {
         return res.status(400).send(error.message)

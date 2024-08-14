@@ -1,7 +1,8 @@
 import express from 'express'
+import passport from 'passport'
 
 import { authController } from '../controllers/index.js'
-import passport from 'passport'
+import authenticateSession from '../middleware/authenticateSession.js'
 
 const authRouter = express.Router()
 
@@ -22,7 +23,11 @@ authRouter.post('/login/tenant', authController.loginWithUsername)
 authRouter.get('/login/failed', authController.loginFailed)
 authRouter.get('/register/failed', authController.registerFailed)
 
-authRouter.get('/login/success', authController.loginSuccess)
+authRouter.get(
+    '/login/success',
+    authenticateSession,
+    authController.loginSuccess,
+)
 
 // register
 authRouter.post('/register/tenant', authController.registerWithUsername)
