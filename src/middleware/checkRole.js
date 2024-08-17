@@ -1,5 +1,5 @@
-function checkLanlordRole(req, res, next) {
-    if (req.user.role === 'lanlord') {
+function checkLandlordRole(req, res, next) {
+    if (req.user.role === 'landlord') {
         next()
     }
 
@@ -31,4 +31,4 @@ function checkAdminRole(req, res, next) {
     })
 }
 
-export { checkLanlordRole, checkTenentRole, checkAdminRole }
+export default { checkLandlordRole, checkTenentRole, checkAdminRole }

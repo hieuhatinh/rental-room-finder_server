@@ -1,6 +1,6 @@
 import { connection } from '../database/index.js'
 
-async function getAuth({ email=null, username=null }) {
+async function getAuth({ email = null, username = null }) {
     try {
         const query = 'SELECT * from users WHERE email=? or username=?'
         const values = [email, username]
@@ -12,7 +12,7 @@ async function getAuth({ email=null, username=null }) {
 }
 
 async function createNewUser({
-    email=null,
+    email = null,
     username = null,
     googleId = null,
     hash_password = null,
@@ -23,7 +23,15 @@ async function createNewUser({
     try {
         const query =
             'INSERT INTO users (`email`, `username`, `google_id`, `hash_password`, `avatar`, `full_name`, `role`) VALUES (?, ?, ?, ?, ?, ?, ?)'
-        const values = [email, username, googleId, hash_password, avatar, fullName, role]
+        const values = [
+            email,
+            username,
+            googleId,
+            hash_password,
+            avatar,
+            fullName,
+            role,
+        ]
         const [newUser] = await connection.execute(query, values)
 
         if (role === 'tenant') {
