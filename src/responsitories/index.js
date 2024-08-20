@@ -1,3 +1,3 @@
-import authResponsitory from './auth'
+import authResponsitories from './auth.js'
 
-export { authResponsitory }
+export { authResponsitories }

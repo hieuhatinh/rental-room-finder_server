@@ -3,27 +3,28 @@ import morgan from 'morgan'
 import bodyParser from 'body-parser'
 import * as dotenv from 'dotenv'
 import passport from 'passport'
-import cookieSession from 'cookie-session'
 import cors from 'cors'
 import session from 'express-session'
+import cookieParser from 'cookie-parser'
+import passportSetup from './passport/index.js'
 
-import passportSetup from './passport.js'
 import routes from './routes/index.js'
-
 
 dotenv.config()
 
 const app = express()
 const port = 5000
 
-// cookie-session
-// app.use(
-//     cookieSession({
-//         name: 'session',
-//         keys: ['rental-room-finder'],
-//         maxAge: 24*60*60*100
-//     })
-// )
+// cors
+app.use(
+    cors({
+        origin: 'http://localhost:3000',
+        method: 'GET,POST,PUT,DELETE',
+        credentials: true,
+    }),
+)
+
+app.use(cookieParser())
 
 app.use(
     session({
@@ -31,7 +32,7 @@ app.use(
         secret: 'rental-room-finder',
         resave: false,
         saveUninitialized: true,
-        cookie: { maxAge: 24 * 60 * 60 * 1000 }, // Thay đổi maxAge nếu cần
+        cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }, // Thay đổi maxAge nếu cần
     }),
 )
 
@@ -39,15 +40,7 @@ app.use(
 app.use(passport.initialize())
 app.use(passport.session())
 
-// cors
-app.use(
-    cors({
-        origin: 'http://localhost:3000', 
-        method: 'GET,POST,PUT,DELETE',
-        credentials: true
-    })
-)
-
+// morgan
 app.use(morgan('combined'))
 
 // parse application/x-www-form-urlencoded
