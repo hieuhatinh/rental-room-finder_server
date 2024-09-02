@@ -1,13 +1,13 @@
 import bcrypt from 'bcrypt'
 
-import { UserModel } from '../models/index.js'
+import { UserModelMySQL } from '../models/index.js'
 
 const registerForTenant = async ({ username, password }) => {
     if (!username || !password) {
         throw new Error('Không có username hoặc password')
     }
 
-    const existingUser = await UserModel.getAuth({ username })
+    const existingUser = await UserModelMySQL.getAuth({ username })
     if (existingUser[0]) {
         throw new Error('Người dùng đã tồn tại trong hệ thống')
     }
@@ -17,7 +17,7 @@ const registerForTenant = async ({ username, password }) => {
         parseInt(process.env.SALT_ROUNDS),
     )
 
-    const newUser = await UserModel.createNewUser({
+    const newUser = await UserModelMySQL.createNewUser({
         username,
         hash_password: hashPassword,
     })
@@ -29,7 +29,7 @@ const loginForTenant = async ({ username, password }) => {
         throw new Error('Không có username hoặc password')
     }
 
-    const existingUser = await UserModel.getAuth({ username })
+    const existingUser = await UserModelMySQL.getAuth({ username })
     if (!existingUser[0]) {
         throw new Error('Tài khoản hoặc mật khẩu sai')
     }
@@ -46,7 +46,7 @@ const loginForTenant = async ({ username, password }) => {
 }
 
 const loginSuccess = async ({ id_user }) => {
-    const existingUser = await UserModel.getById({ id_user })
+    const existingUser = await UserModelMySQL.getById({ id_user })
     if (!existingUser[0]) {
         throw new Error('Đăng nhập không thành công')
     }

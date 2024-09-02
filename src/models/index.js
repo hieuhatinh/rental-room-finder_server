@@ -1,3 +1,5 @@
-import UserModel from './User.js'
+import UserModelMySQL from './User.js'
+import { ConversationModel, MessageModel } from './mongodb/ConversationModel.js'
+import UserModelMG from './mongodb/UserModelMG.js'
 
-export { UserModel }
+export { UserModelMySQL, UserModelMG, ConversationModel, MessageModel }

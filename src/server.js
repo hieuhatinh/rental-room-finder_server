@@ -6,13 +6,15 @@ import passport from 'passport'
 import cors from 'cors'
 import session from 'express-session'
 import cookieParser from 'cookie-parser'
-import passportSetup from './passport/index.js'
 
+import passportSetup from './passport/index.js'
 import routes from './routes/index.js'
+import { connectionMongoDB } from './database/index.js'
+import { app, server } from './socket/index.js'
 
 dotenv.config()
 
-const app = express()
+// const app = express()
 const port = 5000
 
 // cors
@@ -57,6 +59,9 @@ app.use((err, req, res, next) => {
 
 routes(app)
 
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+// connect DB
+connectionMongoDB().then(() => {
+    server.listen(port, () => {
+        console.log(`Example app listening on port ${port}`)
+    })
 })
