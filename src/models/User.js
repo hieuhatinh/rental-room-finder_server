@@ -1,4 +1,5 @@
 import { connection } from '../database/index.js'
+import UserModelMG from './mongodb/UserModelMG.js'
 
 async function getAuth({ email = null, username = null }) {
     try {
@@ -22,6 +23,18 @@ async function getById({ id_user }) {
     }
 }
 
+async function getInfoUsersByIds({ userIds }) {
+    try {
+        const [users] = await connection.execute(
+            'SELECT * FROM users WHERE id_user IN (?)',
+            [userIds],
+        )
+        return users
+    } catch (error) {
+        throw new Error(error || 'Có lỗi xảy ra')
+    }
+}
+
 async function createNewUser({
     email = null,
     username = null,
@@ -32,9 +45,17 @@ async function createNewUser({
     role = 'tenant',
 }) {
     try {
+        const newIdUser = new UserModelMG({
+            username,
+            full_name: fullName,
+            avatar,
+        })
+        await newIdUser.save()
+
         const query =
-            'INSERT INTO users (`email`, `username`, `google_id`, `hash_password`, `avatar`, `full_name`, `role`) VALUES (?, ?, ?, ?, ?, ?, ?)'
+            'INSERT INTO users (id_user, `email`, `username`, `google_id`, `hash_password`, `avatar`, `full_name`, `role`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
         const values = [
+            newIdUser._id.toString(),
             email,
             username,
             googleId,
@@ -59,4 +80,4 @@ async function createNewUser({
     }
 }
 
-export default { getById, getAuth, createNewUser }
+export default { getAuth, getById, getInfoUsersByIds, createNewUser }
