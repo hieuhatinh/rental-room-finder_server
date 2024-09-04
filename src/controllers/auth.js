@@ -16,7 +16,10 @@ const loginGoogleSuccess = async (req, res) => {
             message: 'Đăng nhập thành công',
         })
     } catch (error) {
-        return res.status(400).send(error)
+        return res.status(400).json({
+            error: true,
+            message: error.message,
+        })
     }
 }
 
@@ -33,7 +36,10 @@ const loginSuccess = async (req, res) => {
             message: 'Đăng nhập thành công',
         })
     } catch (error) {
-        return res.status(400).send(error)
+        return res.status(400).json({
+            error: true,
+            message: error.message,
+        })
     }
 }
 
@@ -70,7 +76,10 @@ const loginWithUsername = async (req, res) => {
             message: 'Thành công',
         })
     } catch (error) {
-        return res.status(400).send(error.message)
+        return res.status(400).json({
+            error: true,
+            message: error.message,
+        })
     }
 }
 

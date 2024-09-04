@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt'
+import argon2 from 'argon2'
 
 import { UserModelMySQL } from '../models/index.js'
 
@@ -12,10 +12,7 @@ const registerForTenant = async ({ username, password }) => {
         throw new Error('Người dùng đã tồn tại trong hệ thống')
     }
 
-    const hashPassword = await bcrypt.hash(
-        password,
-        parseInt(process.env.SALT_ROUNDS),
-    )
+    const hashPassword = await argon2.hash(password)
 
     const newUser = await UserModelMySQL.createNewUser({
         username,
@@ -34,9 +31,9 @@ const loginForTenant = async ({ username, password }) => {
         throw new Error('Tài khoản hoặc mật khẩu sai')
     }
 
-    const isCorrectPassword = await bcrypt.compare(
-        password,
+    const isCorrectPassword = await argon2.verify(
         existingUser[0].hash_password,
+        password,
     )
     if (!isCorrectPassword) {
         throw new Error('Tài khoản hoặc mật khẩu sai')
