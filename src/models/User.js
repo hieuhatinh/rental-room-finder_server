@@ -80,4 +80,32 @@ async function createNewUser({
     }
 }
 
-export default { getAuth, getById, getInfoUsersByIds, createNewUser }
+async function updateInformation({ avatar, full_name, id_user }) {
+    try {
+        const query = 'UPDATE users SET full_name=?, avatar=? WHERE id_user=?'
+        const values = [full_name, avatar, id_user]
+        const [userInfoUpdate] = await connection.execute(query, values)
+
+        await UserModelMG.updateOne(
+            {
+                _id: id_user,
+            },
+            {
+                full_name,
+                avatar,
+            },
+        )
+
+        return userInfoUpdate
+    } catch (error) {
+        throw new Error(error || 'Có lỗi xảy ra')
+    }
+}
+
+export default {
+    getAuth,
+    getById,
+    getInfoUsersByIds,
+    createNewUser,
+    updateInformation,
+}

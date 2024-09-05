@@ -50,4 +50,26 @@ const loginSuccess = async ({ id_user }) => {
     return existingUser[0]
 }
 
-export default { registerForTenant, loginForTenant, loginSuccess }
+const updateInfomation = async ({ avatar, full_name, id_user }) => {
+    const existingUser = await UserModelMySQL.getById({ id_user })
+    if (!existingUser[0]) {
+        throw new Error('Không tồn tại người dùng')
+    }
+
+    await UserModelMySQL.updateInformation({
+        avatar,
+        full_name,
+        id_user,
+    })
+
+    const newInfoUser = await UserModelMySQL.getById({ id_user })
+
+    return newInfoUser[0]
+}
+
+export default {
+    registerForTenant,
+    loginForTenant,
+    loginSuccess,
+    updateInfomation,
+}

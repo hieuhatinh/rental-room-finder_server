@@ -36,14 +36,10 @@ authRouter.get('/login/success', authenticateJwt, authController.loginSuccess)
 // register
 authRouter.post('/register/tenant', authController.registerWithUsername)
 
-// authRouter.get('/info', (req, res) => {
-//     console.log(req.user)
-//     res.status(200).json({
-//         user: req.user
-//     })
-// })
-
 // logout
 authRouter.get('/logout', authController.logout)
+
+// update info
+authRouter.put('/update-info', authenticateJwt, authController.updateInfomation)
 
 export default authRouter
