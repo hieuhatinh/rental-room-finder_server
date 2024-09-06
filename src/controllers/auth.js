@@ -112,6 +112,30 @@ const logout = async (req, res) => {
     })
 }
 
+const updateInfomation = async (req, res) => {
+    try {
+        const id_user = req.id_user
+
+        const { avatar, full_name } = req.body
+        const newInfoUser = await authResponsitories.updateInfomation({
+            avatar,
+            full_name,
+            id_user,
+        })
+
+        return res.status(200).json({
+            newInfoUser,
+            success: true,
+            message: 'Thay đổi thông tin thành công',
+        })
+    } catch (error) {
+        return res.status(400).json({
+            error: true,
+            message: error.message,
+        })
+    }
+}
+
 export default {
     loginGoogleSuccess,
     loginSuccess,
@@ -120,4 +144,5 @@ export default {
     loginWithUsername,
     registerWithUsername,
     logout,
+    updateInfomation,
 }
