@@ -5,7 +5,7 @@ function checkLanlordRole(req, res, next) {
 
     return res.status(401).json({
         error: true,
-        message: 'Bạn không có quyền truy cập'
+        message: 'Bạn không có quyền truy cập',
     })
 }
 
@@ -15,14 +15,14 @@ function checkTenentRole(req, res, next) {
     }
 
     return res.status(401).json({
-        error: true, 
-        message: 'Bạn không có quyền truy cập'
+        error: true,
+        message: 'Bạn không có quyền truy cập',
     })
 }
 
 function checkAdminRole(req, res, next) {
-    if (req.user.role === 'admin') {
-        next()
+    if (req?.user?.role === 'admin') {
+        return next()
     }
 
     return res.status(401).json({

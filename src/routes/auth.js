@@ -25,7 +25,7 @@ authRouter.get(
     authController.loginGoogleSuccess,
 )
 
-authRouter.post('/login/tenant', authController.loginWithUsername)
+authRouter.post('/login', authController.loginWithUsername)
 
 // register/login failed/success
 authRouter.get('/login/failed', authController.loginFailed)
@@ -41,5 +41,8 @@ authRouter.get('/logout', authController.logout)
 
 // update info
 authRouter.put('/update-info', authenticateJwt, authController.updateInfomation)
+
+// register admin - backend
+authRouter.post('/register/admin', authController.registerAdmin)
 
 export default authRouter
