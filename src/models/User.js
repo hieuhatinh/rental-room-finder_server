@@ -42,6 +42,7 @@ async function createNewUser({
     hash_password = null,
     avatar = null,
     fullName = null,
+    gender = null,
     role = 'tenant',
 }) {
     try {
@@ -53,7 +54,7 @@ async function createNewUser({
         await newIdUser.save()
 
         const query =
-            'INSERT INTO users (id_user, `email`, `username`, `google_id`, `hash_password`, `avatar`, `full_name`, `role`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+            'INSERT INTO users (id_user, `email`, `username`, `google_id`, `hash_password`, `avatar`, `full_name`, gender, `role`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
         const values = [
             newIdUser._id.toString(),
             email,
@@ -62,6 +63,7 @@ async function createNewUser({
             hash_password,
             avatar,
             fullName,
+            gender,
             role,
         ]
         const [newUser] = await connection.execute(query, values)
@@ -102,10 +104,29 @@ async function updateInformation({ avatar, full_name, id_user }) {
     }
 }
 
+// admin
+async function createNewLandlord({
+    id_landlord,
+    profile_img,
+    birth_date,
+    phone_number,
+}) {
+    try {
+        const query =
+            'INSERT INTO landlords (id_landlord, profile_img, birth_date, phone_number) VALUES (?, ?, ?, ?)'
+        const values = [id_landlord, profile_img, birth_date, phone_number]
+        const [newUser] = await connection.execute(query, values)
+        return newUser
+    } catch (error) {
+        throw new Error(error || 'Có lỗi xảy ra')
+    }
+}
+
 export default {
     getAuth,
     getById,
     getInfoUsersByIds,
     createNewUser,
     updateInformation,
+    createNewLandlord,
 }

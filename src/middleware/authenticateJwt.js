@@ -10,16 +10,16 @@ function authenticateJwt(req, res, next) {
         })
     }
 
-    jwt.verify(token, process.env.PRIVATE_KEY_JWT, (err, id_user) => {
+    jwt.verify(token, process.env.PRIVATE_KEY_JWT, (err, user) => {
         if (err)
             return res.status(403).json({
                 error: true,
                 message: 'Đăng nhập thất bại',
             })
 
-        req.id_user = id_user.id
+        req.user = user
 
-        next()
+        return next()
     })
 }
 

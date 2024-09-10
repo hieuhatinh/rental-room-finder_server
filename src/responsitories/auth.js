@@ -2,7 +2,15 @@ import argon2 from 'argon2'
 
 import { UserModelMySQL } from '../models/index.js'
 
-const registerForTenant = async ({ username, password }) => {
+// register tenant/admin/landlord
+const register = async ({
+    username,
+    password,
+    role,
+    fullName,
+    gender,
+    avatar,
+}) => {
     if (!username || !password) {
         throw new Error('Không có username hoặc password')
     }
@@ -17,7 +25,12 @@ const registerForTenant = async ({ username, password }) => {
     const newUser = await UserModelMySQL.createNewUser({
         username,
         hash_password: hashPassword,
+        role,
+        fullName,
+        gender,
+        avatar,
     })
+
     return newUser
 }
 
@@ -50,6 +63,7 @@ const loginSuccess = async ({ id_user }) => {
     return existingUser[0]
 }
 
+// tenant
 const updateInfomation = async ({ avatar, full_name, id_user }) => {
     const existingUser = await UserModelMySQL.getById({ id_user })
     if (!existingUser[0]) {
@@ -68,7 +82,7 @@ const updateInfomation = async ({ avatar, full_name, id_user }) => {
 }
 
 export default {
-    registerForTenant,
+    register,
     loginForTenant,
     loginSuccess,
     updateInfomation,
