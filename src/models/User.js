@@ -1,4 +1,5 @@
 import { connection } from '../database/index.js'
+import roles from '../utils/roles.js'
 import UserModelMG from './mongodb/UserModelMG.js'
 
 async function getAuth({ email = null, username = null }) {
@@ -43,7 +44,7 @@ async function createNewUser({
     avatar = null,
     fullName = null,
     gender = null,
-    role = 'tenant',
+    role = roles.tenant,
 }) {
     try {
         const newIdUser = new UserModelMG({
@@ -68,7 +69,7 @@ async function createNewUser({
         ]
         const [newUser] = await connection.execute(query, values)
 
-        if (role === 'tenant') {
+        if (role === roles.tenant) {
             const [user] = await getAuth({ email, username })
             const values = [user.id_user]
             await connection.execute(
