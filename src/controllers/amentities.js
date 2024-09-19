@@ -1,11 +1,13 @@
-import { landlordResponsitories } from '../../responsitories/index.js'
+import { amentitiesResponsitories } from '../responsitories/index.js'
 
 const getAllAmentities = async (req, res) => {
     try {
-        const amentities =
-            await landlordResponsitories.amentities.getAllAmentities()
+        const amentities = await amentitiesResponsitories.getAllAmentities()
 
-        return res.status(200).send(amentities)
+        return res.status(200).json({
+            amentities,
+            message: 'Lấy thành công',
+        })
     } catch (error) {
         return res.status(error.statusCode || 400).json({
             error: true,

@@ -21,7 +21,21 @@ const getDetailRoomByIdLandlord = async ({ id_landlord, id_room }) => {
 }
 
 const createNewRoom = async (inforRoom) => {
-    return await Room.createNewRoom({ ...inforRoom })
+    return await Room.createNewRoom({
+        id_landlord: inforRoom.id_landlord,
+        title: inforRoom.title,
+        address_name: inforRoom.addressInfo.display_name,
+        latitude: +inforRoom.addressInfo.lat,
+        longitude: +inforRoom.addressInfo.lon,
+        capacity: inforRoom.capacity,
+        price: inforRoom.price,
+        electricity_price: inforRoom.electricity_price,
+        water_price: inforRoom.water_price,
+        room_area: inforRoom.room_area,
+        description: inforRoom?.description ?? null,
+        images: inforRoom.images,
+        amentities: inforRoom.amentities,
+    })
 }
 
 const updateInfoRoom = async ({ ...inforRoom }) => {

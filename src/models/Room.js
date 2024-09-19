@@ -70,7 +70,6 @@ async function getReviewsOfRoomByLandlord({ id_landlord, id_room }) {
 
 // hàm createNewRoom còn thiêú phần lưu ảnh, amentities
 async function createNewRoom({
-    id_room_type,
     id_landlord,
     title,
     address_name,
@@ -82,15 +81,16 @@ async function createNewRoom({
     water_price,
     room_area,
     description,
+    images,
+    amentities,
 }) {
     try {
         const query =
-            'insert into rooms (id_room_type, id_landlord, title, address_name, ' +
+            'insert into rooms (id_landlord, title, address_name, ' +
             'latitude, longitude, capacity, price, electricity_price, ' +
             'water_price, room_area, description) ' +
-            ' values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            ' values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         const values = [
-            id_room_type,
             id_landlord,
             title,
             address_name,
@@ -103,9 +103,30 @@ async function createNewRoom({
             room_area,
             description,
         ]
-        const [roomTypes] = await connection.execute(query, values)
+        const [newRoom] = await connection.execute(query, values)
+        let id_room = newRoom.insertId
 
-        return roomTypes
+        // add images
+        for (let image of images) {
+            const queryInsertImages =
+                'INSERT INTO room_images (id_image, id_room, image_url, image_type, image_name) VALUES (?, ?, ?, ?, ?)'
+            await connection.execute(queryInsertImages, [
+                image.public_id,
+                id_room,
+                image.url,
+                image.type,
+                image.name,
+            ])
+        }
+
+        // add amentities
+        for (let amentityId of amentities) {
+            const queryInsertAmentity =
+                'INSERT INTO room_amentities (id_room, id_amentity) VALUES (?, ?)'
+            await connection.execute(queryInsertAmentity, [id_room, amentityId])
+        }
+
+        return newRoom
     } catch (error) {
         throw new Error('Có lỗi xảy ra')
     }

@@ -1,6 +1,6 @@
 function checkLanlordRole(req, res, next) {
-    if (req.user.role === 'lanlord') {
-        next()
+    if (req?.user?.role === 'landlord') {
+        return next()
     }
 
     return res.status(401).json({
@@ -11,7 +11,7 @@ function checkLanlordRole(req, res, next) {
 
 function checkTenentRole(req, res, next) {
     if (req.user.role === 'tenant') {
-        next()
+        return next()
     }
 
     return res.status(401).json({

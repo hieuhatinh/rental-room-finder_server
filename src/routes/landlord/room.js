@@ -1,41 +1,41 @@
 import express from 'express'
 
-import { checkRole, authenticateSession } from '../../middleware/index.js'
+import { checkRole, authenticateJwt } from '../../middleware/index.js'
 import { landlordController } from '../../controllers/index.js'
 
 const landlordRoomRouter = express.Router()
 
 landlordRoomRouter.get(
     '/all-room/:id_landlord',
-    // authenticateSession,
+    // authenticateJwt,
     // checkRole.checkLandlordRole,
     landlordController.room.getAllRoomOfLandlord,
 )
 
 landlordRoomRouter.get(
     '/room-detail/:id_room/:id_landlord',
-    // authenticateSession,
+    // authenticateJwt,
     // checkRole.checkLandlordRole,
     landlordController.room.getDetailRoomByIdLandlord,
 )
 
 landlordRoomRouter.post(
-    '/room-detail/create-new-room',
-    // authenticateSession,
-    // checkRole.checkLandlordRole,
+    '/create-new-room',
+    authenticateJwt,
+    checkRole.checkLanlordRole,
     landlordController.room.createNewRoom,
 )
 
 landlordRoomRouter.patch(
     '/room-detail/update-info-room',
-    // authenticateSession,
+    // authenticateJwt,
     // checkRole.checkLandlordRole,
     landlordController.room.updateInfoRoom,
 )
 
 landlordRoomRouter.delete(
     '/room-detail/delete-room/:id_room/:id_landlord',
-    // authenticateSession,
+    // authenticateJwt,
     // checkRole.checkLandlordRole,
     landlordController.room.deleteRoom,
 )
