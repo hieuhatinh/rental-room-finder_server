@@ -13,7 +13,7 @@ adminManageLandlordsRouter.post(
 )
 
 adminManageLandlordsRouter.get(
-    '/get-landlords/:page/:limit',
+    '/get-landlords',
     authenticateJwt,
     checkAdminRole,
     adminController.manageLandlords.getLandlords,

@@ -6,7 +6,7 @@ async function getAllRoomTypes() {
 
         return roomTypes
     } catch (error) {
-        throw new Error('Có lỗi xảy ra')
+        throw new Error(error?.message || 'Có lỗi xảy ra')
     }
 }
 
@@ -28,7 +28,7 @@ async function findRoomInDB({ id_landlord, id_room }) {
 
         return exisRoom
     } catch (error) {
-        throw new Error('Có lỗi xảy ra')
+        throw new Error(error?.message || 'Có lỗi xảy ra')
     }
 }
 
@@ -39,7 +39,7 @@ async function getRoomsByIdLandlord(id_landlord) {
 
         return roomsOfLandlord
     } catch (error) {
-        throw new Error('Có lỗi xảy ra')
+        throw new Error(error?.message || 'Có lỗi xảy ra')
     }
 }
 
@@ -50,7 +50,7 @@ async function getDetailRoomByIdLandlord({ id_landlord, id_room }) {
 
         return info[0][0]
     } catch (error) {
-        throw new Error('Có lỗi xảy ra')
+        throw new Error(error?.message || 'Có lỗi xảy ra')
     }
 }
 
@@ -64,11 +64,10 @@ async function getReviewsOfRoomByLandlord({ id_landlord, id_room }) {
 
         return reviewsOfRoom
     } catch (error) {
-        throw new Error('Có lỗi xảy ra')
+        throw new Error(error?.message || 'Có lỗi xảy ra')
     }
 }
 
-// hàm createNewRoom còn thiêú phần lưu ảnh, amentities
 async function createNewRoom({
     id_landlord,
     title,
@@ -126,9 +125,9 @@ async function createNewRoom({
             await connection.execute(queryInsertAmentity, [id_room, amentityId])
         }
 
-        return newRoom
+        return id_room
     } catch (error) {
-        throw new Error('Có lỗi xảy ra')
+        throw new Error(error?.message || 'Có lỗi xảy ra')
     }
 }
 
@@ -143,7 +142,102 @@ async function deleteRoom({ id_landlord, id_room }) {
 
         return result
     } catch (error) {
-        throw new Error('Có lỗi xảy ra')
+        throw new Error(error?.message || 'Có lỗi xảy ra')
+    }
+}
+
+// admin
+async function findAllUnacceptedRooms({ page, skip, limit }) {
+    try {
+        const totalItems = await countUnacceptedRooms()
+        const totalPages = Math.ceil(totalItems / limit)
+
+        const query = `SELECT rooms.id_room, rooms.title, rooms.id_landlord,
+                            landlords.profile_img, 
+                            users.full_name,
+                            rooms.address_name as address_room
+                       FROM rooms 
+               JOIN landlords ON landlords.id_landlord = rooms.id_landlord 
+               JOIN users ON users.id_user = landlords.id_landlord 
+               WHERE rooms.is_accept = ? 
+               LIMIT ${limit} OFFSET ${skip}`
+        const [unacceptRooms] = await connection.execute(query, [0])
+        return { unacceptRooms, page, limit, totalPages, totalItems }
+    } catch (error) {
+        throw new Error(error?.message || 'Có lỗi xảy ra')
+    }
+}
+
+async function countUnacceptedRooms() {
+    try {
+        const query =
+            'SELECT COUNT(*) as numberOfRecords FROM rooms WHERE is_accept=?'
+        const [numberOfRecords] = await connection.execute(query, [0])
+        return numberOfRecords[0].numberOfRecords
+    } catch (error) {
+        throw new Error(error?.message || 'Có lỗi xảy ra')
+    }
+}
+
+async function getDetailUnacceptRoom({ id_landlord, id_room }) {
+    try {
+        const [statusAcceptOfRoom] = await connection.execute(
+            `SELECT is_accept FROM rooms
+                                    WHERE id_room=? AND id_landlord=?`,
+            [id_room, id_landlord],
+        )
+
+        if (statusAcceptOfRoom[0].is_accept == 1) {
+            return statusAcceptOfRoom[0]
+        }
+
+        const query = `SELECT rooms.*, rooms.address_name as address_room, 
+                                landlords.*, users.full_name, users.gender,
+                                landlords.address_name as address_landlord,
+                                TIMESTAMPDIFF(YEAR, landlords.birth_date, CURDATE()) AS age,
+                                GROUP_CONCAT(DISTINCT amentities.amentity_name) AS amentities,
+                                GROUP_CONCAT(DISTINCT room_images.image_url) AS images
+                           FROM rooms 
+                   JOIN landlords ON landlords.id_landlord = rooms.id_landlord 
+                   JOIN users ON users.id_user = landlords.id_landlord 
+                   JOIN room_amentities ON room_amentities.id_room = rooms.id_room
+                   JOIN amentities ON amentities.id_amentity = room_amentities.id_amentity
+                   JOIN room_images ON room_images.id_room = rooms.id_room
+                   WHERE rooms.is_accept = ? AND rooms.id_room = ? AND rooms.id_landlord = ?
+                   GROUP BY rooms.id_room, landlords.id_landlord`
+        const [detailUnacceptRoom] = await connection.execute(query, [
+            0,
+            id_room,
+            id_landlord,
+        ])
+
+        return detailUnacceptRoom[0]
+    } catch (error) {
+        throw new Error(error?.message || 'Có lỗi xảy ra')
+    }
+}
+
+async function updateStatusAccept({
+    id_landlord,
+    id_room,
+    id_admin,
+    is_accept,
+}) {
+    try {
+        const query = `UPDATE rooms
+                        SET accept_by=?, is_accept=?, accept_at=CURRENT_TIMESTAMP
+                        WHERE rooms.id_room=? AND rooms.id_landlord=?`
+
+        const [result] = await connection.execute(query, [
+            id_admin,
+            is_accept,
+            id_room,
+            id_landlord,
+        ])
+
+        return result
+    } catch (error) {
+        throw new Error(error?.message || 'Có lỗi xảy ra')
     }
 }
 
@@ -151,10 +245,16 @@ export default {
     getAllRoomTypes,
     getAllRooms,
     findRoomInDB,
+    // landlord
     getRoomsByIdLandlord,
     getDetailRoomByIdLandlord,
     getReviewsOfRoomByLandlord,
     createNewRoom,
     updateInfoRoom,
     deleteRoom,
+    // admin
+    findAllUnacceptedRooms,
+    countUnacceptedRooms,
+    getDetailUnacceptRoom,
+    updateStatusAccept,
 }

@@ -46,13 +46,13 @@ const createNewRoom = async (req, res) => {
     try {
         const id_landlord = req.user.id
         const inforRoom = req.body
-        const newRoom = await landlordResponsitories.room.createNewRoom({
+        const idNewRoom = await landlordResponsitories.room.createNewRoom({
             id_landlord,
             ...inforRoom,
         })
 
         return res.status(200).json({
-            newRoom,
+            idNewRoom,
             message: 'Thêm phòng thành công',
         })
     } catch (error) {
