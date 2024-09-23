@@ -32,12 +32,27 @@ async function findRoomInDB({ id_landlord, id_room }) {
     }
 }
 
-async function getRoomsByIdLandlord(id_landlord) {
+async function getRoomsByIdLandlord({ id_landlord, page, skip, limit }) {
     try {
-        const query = 'SELECT * FROM rooms WHERE id_landlord=?'
+        const [result] = await connection.execute(
+            `SELECT COUNT(*) as total FROM rooms WHERE id_landlord=?`,
+            [id_landlord],
+        )
+        const totalItems = result[0].total
+        const totalPages = Math.ceil(totalItems / limit)
+
+        const query = `SELECT * FROM rooms WHERE id_landlord=? 
+                        LIMIT ${limit} OFFSET ${skip}`
         const [roomsOfLandlord] = await connection.execute(query, [id_landlord])
 
-        return roomsOfLandlord
+        return {
+            items: roomsOfLandlord,
+            limit,
+            totalItems,
+            totalPages,
+            page,
+            limit,
+        }
     } catch (error) {
         throw new Error(error?.message || 'Có lỗi xảy ra')
     }
@@ -48,7 +63,13 @@ async function getDetailRoomByIdLandlord({ id_landlord, id_room }) {
         const query = 'call get_detail_room_by_landlord(?, ?)'
         const [info] = await connection.execute(query, [id_landlord, id_room])
 
-        return info[0][0]
+        const queryGetImgsOfRoom = `SELECT * from room_images
+                                    WHERE room_images.id_room =?`
+        const [imagesOfRoom] = await connection.execute(queryGetImgsOfRoom, [
+            id_room,
+        ])
+
+        return { ...info[0][0], imagesOfRoom }
     } catch (error) {
         throw new Error(error?.message || 'Có lỗi xảy ra')
     }
@@ -187,7 +208,7 @@ async function getDetailUnacceptRoom({ id_landlord, id_room }) {
             [id_room, id_landlord],
         )
 
-        if (statusAcceptOfRoom[0].is_accept == 1) {
+        if (statusAcceptOfRoom[0]?.is_accept) {
             return statusAcceptOfRoom[0]
         }
 

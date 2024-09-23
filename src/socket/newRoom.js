@@ -22,6 +22,11 @@ function socketAddNewRoom(socket, io) {
     socket.on('accept-request', async () => {
         socket.broadcast.emit('accept-request')
     })
+
+    // send socket to admin to delete room notification
+    socket.on('delete-room', async () => {
+        socket.broadcast.emit('delete-room')
+    })
 }
 
 export default socketAddNewRoom

@@ -6,16 +6,16 @@ import { landlordController } from '../../controllers/index.js'
 const landlordRoomRouter = express.Router()
 
 landlordRoomRouter.get(
-    '/all-room/:id_landlord',
-    // authenticateJwt,
-    // checkRole.checkLandlordRole,
+    '/get-all-rooms',
+    authenticateJwt,
+    checkRole.checkLanlordRole,
     landlordController.room.getAllRoomOfLandlord,
 )
 
 landlordRoomRouter.get(
-    '/room-detail/:id_room/:id_landlord',
-    // authenticateJwt,
-    // checkRole.checkLandlordRole,
+    '/room-detail/:id_room',
+    authenticateJwt,
+    checkRole.checkLanlordRole,
     landlordController.room.getDetailRoomByIdLandlord,
 )
 
@@ -34,9 +34,9 @@ landlordRoomRouter.patch(
 )
 
 landlordRoomRouter.delete(
-    '/room-detail/delete-room/:id_room/:id_landlord',
-    // authenticateJwt,
-    // checkRole.checkLandlordRole,
+    '/delete-room/:id_room',
+    authenticateJwt,
+    checkRole.checkLanlordRole,
     landlordController.room.deleteRoom,
 )
 

@@ -1,7 +1,7 @@
 import { Room } from '../../models/index.js'
 
-const getAllRoomOfLandlord = async ({ id_landlord }) => {
-    return await Room.getRoomsByIdLandlord(id_landlord)
+const getAllRoomOfLandlord = async ({ id_landlord, page, skip, limit }) => {
+    return await Room.getRoomsByIdLandlord({ id_landlord, page, skip, limit })
 }
 
 const getDetailRoomByIdLandlord = async ({ id_landlord, id_room }) => {
