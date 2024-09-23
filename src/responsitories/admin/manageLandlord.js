@@ -2,6 +2,7 @@ import {
     AdminLandlordManagementModelMySQL,
     UserModelMySQL,
 } from '../../models/index.js'
+import roles from '../../utils/roles.js'
 import { authResponsitories } from '../index.js'
 
 const addNewLandlord = async ({
@@ -17,7 +18,7 @@ const addNewLandlord = async ({
         username,
         password,
         fullName: full_name,
-        role: 'landlord',
+        role: roles.landlord,
         gender,
         avatar: profile_img,
     })

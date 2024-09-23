@@ -1,6 +1,8 @@
+import roles from '../utils/roles'
+
 function checkLanlordRole(req, res, next) {
-    if (req?.user?.role === 'landlord') {
-        return next()
+    if (req?.user?.role === roles.landlord) {
+        next()
     }
 
     return res.status(401).json({
@@ -10,8 +12,8 @@ function checkLanlordRole(req, res, next) {
 }
 
 function checkTenentRole(req, res, next) {
-    if (req.user.role === 'tenant') {
-        return next()
+    if (req?.user?.role === roles.tenant) {
+        next()
     }
 
     return res.status(401).json({
@@ -21,7 +23,7 @@ function checkTenentRole(req, res, next) {
 }
 
 function checkAdminRole(req, res, next) {
-    if (req?.user?.role === 'admin') {
+    if (req?.user?.role === roles.admin) {
         return next()
     }
 
