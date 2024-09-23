@@ -1,7 +1,7 @@
 import roles from '../utils/roles'
 
 function checkLanlordRole(req, res, next) {
-    if (req.user.role === roles.landlord) {
+    if (req?.user?.role === roles.landlord) {
         next()
     }
 
@@ -12,7 +12,7 @@ function checkLanlordRole(req, res, next) {
 }
 
 function checkTenentRole(req, res, next) {
-    if (req.user.role === roles.tenant) {
+    if (req?.user?.role === roles.tenant) {
         next()
     }
 

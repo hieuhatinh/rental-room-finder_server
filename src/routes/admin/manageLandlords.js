@@ -1,6 +1,6 @@
 import express from 'express'
 import { adminController } from '../../controllers/index.js'
-import authenticateJwt from '../../middleware/authenticateJwt.js'
+import { authenticateJwt } from '../../middleware/index.js'
 import { checkAdminRole } from '../../middleware/checkRole.js'
 
 const adminManageLandlordsRouter = express.Router()
@@ -13,7 +13,7 @@ adminManageLandlordsRouter.post(
 )
 
 adminManageLandlordsRouter.get(
-    '/get-landlords/:page/:limit',
+    '/get-landlords',
     authenticateJwt,
     checkAdminRole,
     adminController.manageLandlords.getLandlords,

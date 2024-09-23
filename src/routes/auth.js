@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 
 import { authController } from '../controllers/index.js'
 import authenticateSession from '../middleware/authenticateSession.js'
-import authenticateJwt from '../middleware/authenticateJwt.js'
+import { authenticateJwt } from '../middleware/index.js'
 
 const authRouter = express.Router()
 

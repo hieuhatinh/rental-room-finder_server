@@ -1,5 +1,5 @@
 import { adminResponsitories } from '../../responsitories/index.js'
-import skip from '../../utils/skip.js'
+import skip, { LIMIT, PAGE } from '../../utils/skip.js'
 
 const addNewLandlord = async (req, res) => {
     try {
@@ -39,7 +39,9 @@ const addNewLandlord = async (req, res) => {
 
 const getLandlords = async (req, res) => {
     try {
-        const { page, limit } = req.params
+        let { page, limit } = req.query
+        limit = +limit ?? LIMIT
+        page = +page ?? PAGE
         const result = await adminResponsitories.manageLandlord.getLandlords({
             page,
             skip: skip({ page, limit }),
