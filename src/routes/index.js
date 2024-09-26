@@ -4,11 +4,13 @@ import amentitiesRouter from './amentities.js'
 import authRouter from './auth.js'
 import fileRouter from './file.js'
 import landlordRoomRouter from './landlord/room.js'
+import tenantRoomsRouter from './tenant/rooms.js'
 
 function routes(app) {
     app.use('/auth', authRouter)
     app.use('/file', fileRouter)
     app.use('/amentities', amentitiesRouter)
+    app.use('/tenant', tenantRoomsRouter)
 
     // landlord
     app.use('/landlord/manage', landlordRoomRouter)
