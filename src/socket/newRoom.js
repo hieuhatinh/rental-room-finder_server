@@ -3,8 +3,11 @@ import { Room } from '../models/index.js'
 function socketAddNewRoom(socket, io) {
     socket.on('new-room-created', async (data) => {
         // Phát lại sự kiện cho phía client
+        const numberUnacceptedRooms = await Room.countUnacceptedRooms()
+
         socket.broadcast.emit('new-room-created', {
             ...data,
+            numberUnacceptedRooms,
         })
     })
 

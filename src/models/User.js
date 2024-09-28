@@ -111,11 +111,18 @@ async function createNewLandlord({
     profile_img,
     birth_date,
     phone_number,
+    address,
 }) {
     try {
         const query =
-            'INSERT INTO landlords (id_landlord, profile_img, birth_date, phone_number) VALUES (?, ?, ?, ?)'
-        const values = [id_landlord, profile_img, birth_date, phone_number]
+            'INSERT INTO landlords (id_landlord, profile_img, birth_date, phone_number, address_name) VALUES (?, ?, ?, ?, ?)'
+        const values = [
+            id_landlord,
+            profile_img,
+            birth_date,
+            phone_number,
+            address,
+        ]
         const [newUser] = await connection.execute(query, values)
         return newUser
     } catch (error) {

@@ -13,6 +13,7 @@ const addNewLandlord = async ({
     profile_img,
     birth_date,
     phone_number,
+    address,
 }) => {
     const result = await authResponsitories.register({
         username,
@@ -30,6 +31,7 @@ const addNewLandlord = async ({
             profile_img,
             birth_date,
             phone_number,
+            address,
         })
 
         return { ...newUser, ...newLandlord }

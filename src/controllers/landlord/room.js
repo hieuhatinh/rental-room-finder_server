@@ -42,7 +42,6 @@ const getDetailRoomByIdLandlord = async (req, res) => {
             message: 'Lấy thông tin phòng thành công',
         })
     } catch (error) {
-        console.log(error)
         return res.status(error.statusCode || 400).json({
             error: true,
             message: error.message || 'Có lỗi xảy ra',

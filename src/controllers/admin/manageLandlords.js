@@ -11,6 +11,7 @@ const addNewLandlord = async (req, res) => {
             profile_img,
             birth_date,
             phone_number,
+            address,
         } = req.body
 
         const existUser =
@@ -22,6 +23,7 @@ const addNewLandlord = async (req, res) => {
                 profile_img,
                 birth_date,
                 phone_number,
+                address,
             })
 
         return res.status(200).json({
