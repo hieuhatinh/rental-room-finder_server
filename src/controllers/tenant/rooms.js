@@ -19,7 +19,18 @@ const getSomeRooms = async (req, res) => {
 
 const searchRooms = async (req, res) => {
     try {
-        const { display_name, lat, lon, page, limit } = req.query
+        const {
+            display_name,
+            lat,
+            lon,
+            page,
+            limit,
+            amentities,
+            roomPrice,
+            waterPrice,
+            electricityPrice,
+        } = req.query
+
         const rooms = await tenantResponsitories.rooms.searchRooms({
             display_name,
             lat: +lat,
@@ -27,6 +38,10 @@ const searchRooms = async (req, res) => {
             page: +page,
             limit: +limit,
             skip: skip({ page, limit }),
+            amentities,
+            roomPrice: +roomPrice,
+            waterPrice: +waterPrice,
+            electricityPrice: +electricityPrice,
         })
 
         return res.status(200).json({
@@ -34,6 +49,7 @@ const searchRooms = async (req, res) => {
             message: 'Tìm kiếm thành công',
         })
     } catch (error) {
+        console.log(error)
         return res.status(error.statusCode || 400).json({
             error: true,
             message: error.message || 'Có lỗi xảy ra',

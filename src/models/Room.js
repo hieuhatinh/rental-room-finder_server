@@ -3,7 +3,7 @@ import { connection } from '../database/index.js'
 // tenant
 async function getSomeRooms() {
     try {
-        const query = `SELECT rooms.*, room_images.image_url FROM rooms  
+        const query = `SELECT rooms.*, landlords.*, room_images.image_url FROM rooms  
                         JOIN landlords ON landlords.id_landlord = rooms.id_landlord
                         JOIN (
                             SELECT id_room, MIN(image_url) as image_url
@@ -29,21 +29,19 @@ async function searchRooms({
     page,
     limit,
     skip,
+    amentities = [],
+    roomPrice = null,
+    waterPrice = null,
+    electricityPrice = null,
 }) {
     try {
         radius = radius * 1000
 
-        const [result] = await connection.execute(
-            `SELECT COUNT(*) as total FROM rooms WHERE ST_Distance_Sphere(location, ST_SRID(Point(?, ?), 4326)) < ?`,
-            [lon, lat, radius],
-        )
-        const totalItems = result[0].total
-        const totalPages = Math.ceil(totalItems / limit)
-
-        const querySearch = `SELECT rooms.*, room_images.image_url, 
-                                ST_Distance_Sphere(location, ST_SRID(Point(105.8096674, 20.9901058), 4326)) AS distance,
+        let querySearch = `SELECT rooms.*, landlords.phone_number, room_images.image_url, 
+                                ST_Distance_Sphere(location, ST_SRID(Point(${lon}, ${lat}), 4326)) AS distance,
                                 group_concat(concat(amentities.id_amentity, ":", amentities.amentity_name) separator ',') as list_amentity
                             FROM rooms
+                            JOIN landlords ON landlords.id_landlord = rooms.id_landlord
                             JOIN (
                                 SELECT id_room, MIN(image_url) as image_url
                                 FROM room_images
@@ -51,15 +49,42 @@ async function searchRooms({
                             ) as room_images ON room_images.id_room = rooms.id_room
                             JOIN room_amentities ON room_amentities.id_room = rooms.id_room
                             JOIN amentities ON amentities.id_amentity = room_amentities.id_amentity
-                            GROUP BY rooms.id_room
-                            HAVING distance < 5000 AND rooms.is_accept = 1
-                            ORDER BY rooms.price ASC
-                            LIMIT ${limit} OFFSET ${skip}`
-        const [rooms] = await connection.execute(querySearch, [
-            lon,
-            lat,
-            radius,
-        ])
+                            WHERE ST_Distance_Sphere(location, ST_SRID(Point(${lon}, ${lat}), 4326)) < ${radius} 
+                                    AND rooms.is_accept = 1
+                            `
+
+        let conditions = []
+        if (amentities.length > 0) {
+            conditions.push(
+                `rooms.id_room in (
+                    SELECT room_amentities.id_room from rooms
+					JOIN room_amentities on room_amentities.id_room = rooms.id_room
+					WHERE room_amentities.id_amentity IN (${amentities.join(',')})
+					GROUP BY room_amentities.id_room)`,
+            )
+        }
+        if (roomPrice) {
+            conditions.push(`rooms.price <= ${roomPrice}`)
+        }
+        if (waterPrice) {
+            conditions.push(`rooms.water_price <= ${waterPrice}`)
+        }
+        if (electricityPrice) {
+            conditions.push(`rooms.electricity_price <= ${electricityPrice}`)
+        }
+
+        if (conditions.length > 0) {
+            querySearch += ` AND ` + conditions.join('\n AND ')
+        }
+
+        querySearch += ` \n GROUP BY rooms.id_room
+                        ORDER BY distance ASC, rooms.price ASC
+                        LIMIT ${limit} OFFSET ${skip}`
+
+        const [rooms] = await connection.execute(querySearch)
+
+        const totalItems = rooms.length
+        const totalPages = Math.ceil(totalItems / limit)
 
         return {
             items: rooms,
@@ -76,7 +101,7 @@ async function searchRooms({
 
 async function getDetailRoom({ id_room }) {
     try {
-        const query = `SELECT * FROM rooms  
+        const query = `SELECT landlords.phone_number, rooms.* FROM rooms  
                         JOIN landlords ON landlords.id_landlord = rooms.id_landlord
                         WHERE rooms.is_accept = 1 AND rooms.id_room = ?`
         const [infoRoom] = await connection.execute(query, [id_room])
@@ -117,16 +142,12 @@ async function findRoomInDB({ id_landlord, id_room }) {
 
 async function getRoomsByIdLandlord({ id_landlord, page, skip, limit }) {
     try {
-        const [result] = await connection.execute(
-            `SELECT COUNT(*) as total FROM rooms WHERE id_landlord=?`,
-            [id_landlord],
-        )
-        const totalItems = result[0].total
-        const totalPages = Math.ceil(totalItems / limit)
-
         const query = `SELECT * FROM rooms WHERE id_landlord=? 
                         LIMIT ${limit} OFFSET ${skip}`
         const [roomsOfLandlord] = await connection.execute(query, [id_landlord])
+
+        const totalItems = roomsOfLandlord.length
+        const totalPages = Math.ceil(totalItems / limit)
 
         return {
             items: roomsOfLandlord,

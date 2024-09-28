@@ -4,7 +4,18 @@ const getSomeRooms = async () => {
     return await Room.getSomeRooms()
 }
 
-const searchRooms = async ({ display_name, lat, lon, limit, page, skip }) => {
+const searchRooms = async ({
+    display_name,
+    lat,
+    lon,
+    limit,
+    page,
+    skip,
+    amentities,
+    roomPrice,
+    waterPrice,
+    electricityPrice,
+}) => {
     let result = await Room.searchRooms({
         display_name,
         lat,
@@ -12,7 +23,12 @@ const searchRooms = async ({ display_name, lat, lon, limit, page, skip }) => {
         page,
         limit,
         skip,
+        amentities: amentities?.map((item) => item.id_amentity),
+        roomPrice,
+        waterPrice,
+        electricityPrice,
     })
+
     result = {
         ...result,
         items: result.items.map((item) => {
