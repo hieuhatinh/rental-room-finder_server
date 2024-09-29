@@ -2,7 +2,7 @@ import passport from 'passport'
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
 import * as dotenv from 'dotenv'
 
-import { UserModel } from '../models/index.js'
+import { UserModelMySQL } from '../models/index.js'
 
 dotenv.config()
 
@@ -15,7 +15,7 @@ passport.use(
             scope: ['profile', 'email'],
         },
         async function (accessToken, refreshToken, profile, cb) {
-            const existingUser = await UserModel.getAuth({
+            const existingUser = await UserModelMySQL.getAuth({
                 email: profile._json.email,
             })
             if (existingUser[0]) {
@@ -26,13 +26,13 @@ passport.use(
                 }
                 cb(null, existingUser[0])
             } else {
-                await UserModel.createNewUser({
+                await UserModelMySQL.createNewUser({
                     email: profile._json.email,
                     googleId: profile.id,
                     avatar: profile._json.picture,
                     fullName: profile._json.name,
                 })
-                const newUser = await UserModel.getAuth({
+                const newUser = await UserModelMySQL.getAuth({
                     email: profile._json.email,
                 })
                 cb(null, newUser[0])
@@ -46,7 +46,7 @@ passport.serializeUser((user, done) => {
 })
 
 passport.deserializeUser(async (id_user, done) => {
-    const user = await UserModel.getById({
+    const user = await UserModelMySQL.getById({
         id_user,
     })
     done(null, user[0])

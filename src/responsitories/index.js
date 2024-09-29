@@ -1,5 +1,19 @@
 import authResponsitories from './auth.js'
+import chatResponsitories from './chat.js'
+import fileResponsitories from './file.js'
+import * as adminResponsitories from './admin/index.js'
+import amentitiesResponsitories from './amentities.js'
+import * as landlordResponsitories from './landlord/index.js'
+import * as tenantResponsitories from './tenant/index.js'
 import chatbotResponsitories from './chatbot.js'
-import roomResponsitories from './room.js'
 
-export { authResponsitories, chatbotResponsitories, roomResponsitories }
+export {
+    authResponsitories,
+    chatResponsitories,
+    fileResponsitories,
+    adminResponsitories,
+    amentitiesResponsitories,
+    landlordResponsitories,
+    tenantResponsitories,
+    chatbotResponsitories,
+}

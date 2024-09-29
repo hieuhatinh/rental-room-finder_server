@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 
 import { authController } from '../controllers/index.js'
 import authenticateSession from '../middleware/authenticateSession.js'
-import authenticateJwt from '../middleware/authenticateJwt.js'
+import { authenticateJwt } from '../middleware/index.js'
 
 const authRouter = express.Router()
 
@@ -25,7 +25,7 @@ authRouter.get(
     authController.loginGoogleSuccess,
 )
 
-authRouter.post('/login/tenant', authController.loginWithUsername)
+authRouter.post('/login', authController.loginWithUsername)
 
 // register/login failed/success
 authRouter.get('/login/failed', authController.loginFailed)
@@ -36,14 +36,13 @@ authRouter.get('/login/success', authenticateJwt, authController.loginSuccess)
 // register
 authRouter.post('/register/tenant', authController.registerWithUsername)
 
-// authRouter.get('/info', (req, res) => {
-//     console.log(req.user)
-//     res.status(200).json({
-//         user: req.user
-//     })
-// })
-
 // logout
 authRouter.get('/logout', authController.logout)
+
+// update info
+authRouter.put('/update-info', authenticateJwt, authController.updateInfomation)
+
+// register admin - backend
+authRouter.post('/register/admin', authController.registerAdmin)
 
 export default authRouter

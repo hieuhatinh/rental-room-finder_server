@@ -16,13 +16,16 @@ const loginGoogleSuccess = async (req, res) => {
             message: 'Đăng nhập thành công',
         })
     } catch (error) {
-        return res.status(400).send(error)
+        return res.status(400).json({
+            error: true,
+            message: error.message,
+        })
     }
 }
 
 const loginSuccess = async (req, res) => {
     try {
-        const id_user = req.id_user
+        const id_user = req.user.id
 
         const existUser = await authResponsitories.loginSuccess({ id_user })
         const { hash_password, ...userWithoutPassword } = existUser
@@ -33,7 +36,10 @@ const loginSuccess = async (req, res) => {
             message: 'Đăng nhập thành công',
         })
     } catch (error) {
-        return res.status(400).send(error)
+        return res.status(400).json({
+            error: true,
+            message: error.message,
+        })
     }
 }
 
@@ -51,6 +57,7 @@ const registerFailed = (req, res) => {
     })
 }
 
+// 3 role: tenant, landlord, admin
 const loginWithUsername = async (req, res) => {
     try {
         const { username, password } = req.body
@@ -70,14 +77,18 @@ const loginWithUsername = async (req, res) => {
             message: 'Thành công',
         })
     } catch (error) {
-        return res.status(400).send(error.message)
+        return res.status(400).json({
+            error: true,
+            message: error.message,
+        })
     }
 }
 
+// tenant
 const registerWithUsername = async (req, res) => {
     try {
         const { username, password } = req.body
-        const result = await authResponsitories.registerForTenant({
+        const result = await authResponsitories.register({
             username,
             password,
         })
@@ -103,6 +114,53 @@ const logout = async (req, res) => {
     })
 }
 
+// tenant
+const updateInfomation = async (req, res) => {
+    try {
+        const id_user = req.user.id
+
+        const { avatar, full_name } = req.body
+        const newInfoUser = await authResponsitories.updateInfomation({
+            avatar,
+            full_name,
+            id_user,
+        })
+
+        return res.status(200).json({
+            newInfoUser,
+            success: true,
+            message: 'Thay đổi thông tin thành công',
+        })
+    } catch (error) {
+        return res.status(400).json({
+            error: true,
+            message: error.message,
+        })
+    }
+}
+
+// admin
+const registerAdmin = async (req, res) => {
+    try {
+        const { username, password, role } = req.body
+        const result = await authResponsitories.register({
+            username,
+            password,
+            role,
+        })
+        return res.status(200).json({
+            result,
+            success: true,
+            message: 'Đăng kí thành công',
+        })
+    } catch (error) {
+        return res.status(400).json({
+            error: true,
+            message: error.message,
+        })
+    }
+}
+
 export default {
     loginGoogleSuccess,
     loginSuccess,
@@ -111,4 +169,6 @@ export default {
     loginWithUsername,
     registerWithUsername,
     logout,
+    updateInfomation,
+    registerAdmin,
 }
