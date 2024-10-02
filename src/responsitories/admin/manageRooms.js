@@ -37,7 +37,7 @@ const getDetailUnacceptRoom = async ({ id_landlord, id_room }) => {
             created_at: result.created_at,
             accept_at: result.accept_at,
             amentities: result.amentities.split(','),
-            images: result.images.split(','),
+            images: result.images,
         },
         landlordInfo: {
             id_landlord: result.id_landlord,
