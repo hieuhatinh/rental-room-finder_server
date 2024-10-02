@@ -8,6 +8,7 @@ const tenantRoomsRouter = express.Router()
 tenantRoomsRouter.get('/get-some-rooms', tenantController.rooms.getSomeRooms)
 
 tenantRoomsRouter.get('/search-rooms', tenantController.rooms.searchRooms)
+
 tenantRoomsRouter.get(
     '/get-detail-room/:id_room',
     tenantController.rooms.getDetailRoom,

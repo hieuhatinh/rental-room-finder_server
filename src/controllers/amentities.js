@@ -16,4 +16,23 @@ const getAllAmentities = async (req, res) => {
     }
 }
 
-export default { getAllAmentities }
+const getAmentitiesId = async (req, res) => {
+    try {
+        const { names } = req.query
+        const amentities = await amentitiesResponsitories.getAmentitiesId({
+            names,
+        })
+
+        return res.status(200).json({
+            amentities,
+            message: 'Lấy thành công',
+        })
+    } catch (error) {
+        return res.status(error.statusCode || 400).json({
+            error: true,
+            message: error.message || 'Có lỗi xảy ra',
+        })
+    }
+}
+
+export default { getAllAmentities, getAmentitiesId }

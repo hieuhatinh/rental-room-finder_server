@@ -11,38 +11,52 @@ const searchRooms = async ({
     limit,
     page,
     skip,
+    radius,
     amentities,
     roomPrice,
     waterPrice,
     electricityPrice,
+    capacity,
 }) => {
-    let result = await Room.searchRooms({
-        display_name,
-        lat,
-        lon,
-        page,
-        limit,
-        skip,
-        amentities: amentities?.map((item) => item.id_amentity),
-        roomPrice,
-        waterPrice,
-        electricityPrice,
-    })
+    try {
+        let newAmentities = null
+        if (amentities) {
+            newAmentities = amentities?.split(',')
+            newAmentities = newAmentities?.map((item) => item)
+        }
 
-    result = {
-        ...result,
-        items: result.items.map((item) => {
-            return {
-                ...item,
-                list_amentity: item.list_amentity.split(',').map((item) => {
-                    const [id_amentity, amentity_name] = item.split(':')
-                    return { id_amentity, amentity_name }
-                }),
-            }
-        }),
+        let result = await Room.searchRooms({
+            display_name,
+            lat,
+            lon,
+            page,
+            limit,
+            skip,
+            radius,
+            amentities: newAmentities,
+            roomPrice,
+            waterPrice,
+            electricityPrice,
+            capacity,
+        })
+
+        result = {
+            ...result,
+            items: result.items.map((item) => {
+                return {
+                    ...item,
+                    list_amentity: item.list_amentity.split(',').map((item) => {
+                        const [id_amentity, amentity_name] = item.split(':')
+                        return { id_amentity, amentity_name }
+                    }),
+                }
+            }),
+        }
+
+        return result
+    } catch (error) {
+        throw new Error(error.message)
     }
-
-    return result
 }
 
 const getDetailRoom = async ({ id_room }) => {
@@ -53,4 +67,8 @@ const getDetailRoom = async ({ id_room }) => {
     return result
 }
 
-export default { getSomeRooms, searchRooms, getDetailRoom }
+export default {
+    getSomeRooms,
+    searchRooms,
+    getDetailRoom,
+}

@@ -6,4 +6,9 @@ const handleAgent = async (req, res) => {
     return res.status(200).send(result)
 }
 
+// const clearAllContexts = async (req, res) => {
+//     const { currentSessionId } = req.body
+//     await chatbotResponsitories.clearAllContexts({ currentSessionId })
+// }
+
 export default { handleAgent }

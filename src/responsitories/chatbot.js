@@ -11,10 +11,32 @@ const sessionClient = new dialogflow.SessionsClient({
     },
 })
 
-const textQuery = async ({ text }) => {
+// async function clearAllContexts({ currentSessionId }) {
+//     const contextsClient = new dialogflow.ContextsClient()
+//     const sessionPath = contextsClient.sessionPath(
+//         configPrivateKey.googleDialogflowProjectId,
+//         configPrivateKey.dialogflowSessionID,
+//         currentSessionId,
+//     )
+
+//     try {
+//         const [contexts] = await contextsClient.listContexts({
+//             parent: sessionPath,
+//         })
+//         for (const context of contexts) {
+//             await contextsClient.deleteContext({ name: context.name })
+//         }
+//     } catch (error) {
+//         console.error('Error clearing contexts:', error)
+//     }
+// }
+
+const textQuery = async ({ text, currentSessionId }) => {
+    console.log({ currentSessionId })
     const sessionPath = sessionClient.sessionPath(
         configPrivateKey.googleDialogflowProjectId,
         configPrivateKey.dialogflowSessionID,
+        currentSessionId,
     )
 
     const request = {
