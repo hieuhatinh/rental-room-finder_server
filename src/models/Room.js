@@ -29,7 +29,8 @@ async function searchRooms({
     page,
     limit,
     skip,
-    amentities = [],
+    capacity = null,
+    amentities = null,
     roomPrice = null,
     waterPrice = null,
     electricityPrice = null,
@@ -38,7 +39,7 @@ async function searchRooms({
         radius = radius * 1000
 
         let querySearch = `SELECT rooms.*, landlords.phone_number, room_images.image_url, 
-                                ST_Distance_Sphere(location, ST_SRID(Point(${lon}, ${lat}), 4326)) AS distance,
+                                ST_Distance_Sphere(location, ST_SRID(Point(${+lon}, ${+lat}), 4326)) AS distance,
                                 group_concat(concat(amentities.id_amentity, ":", amentities.amentity_name) separator ',') as list_amentity
                             FROM rooms
                             JOIN landlords ON landlords.id_landlord = rooms.id_landlord
@@ -49,12 +50,12 @@ async function searchRooms({
                             ) as room_images ON room_images.id_room = rooms.id_room
                             JOIN room_amentities ON room_amentities.id_room = rooms.id_room
                             JOIN amentities ON amentities.id_amentity = room_amentities.id_amentity
-                            WHERE ST_Distance_Sphere(location, ST_SRID(Point(${lon}, ${lat}), 4326)) < ${radius} 
+                            WHERE ST_Distance_Sphere(location, ST_SRID(Point(${+lon}, ${+lat}), 4326)) < ${radius} 
                                     AND rooms.is_accept = 1
                             `
 
         let conditions = []
-        if (amentities.length > 0) {
+        if (amentities) {
             conditions.push(
                 `rooms.id_room in (
                     SELECT room_amentities.id_room from rooms
@@ -64,35 +65,40 @@ async function searchRooms({
             )
         }
         if (roomPrice) {
-            conditions.push(`rooms.price <= ${roomPrice}`)
+            conditions.push(`rooms.price <= ${+roomPrice}`)
         }
         if (waterPrice) {
-            conditions.push(`rooms.water_price <= ${waterPrice}`)
+            conditions.push(`rooms.water_price <= ${+waterPrice}`)
         }
         if (electricityPrice) {
-            conditions.push(`rooms.electricity_price <= ${electricityPrice}`)
+            conditions.push(`rooms.electricity_price <= ${+electricityPrice}`)
+        }
+        if (capacity) {
+            conditions.push(`rooms.capacity >= ${+capacity}`)
         }
 
         if (conditions.length > 0) {
-            querySearch += ` AND ` + conditions.join('\n AND ')
+            querySearch += ` AND (` + conditions.join('\n OR ') + ')'
         }
 
         querySearch += ` \n GROUP BY rooms.id_room
-                        ORDER BY distance ASC, rooms.price ASC
-                        LIMIT ${limit} OFFSET ${skip}`
+                        ORDER BY distance ASC, rooms.price ASC`
 
+        // truy vấn đếm tổng số bản ghi thỏa mãn
+        const [countResult] = await connection.execute(querySearch)
+        const totalItems = countResult.length
+        const totalPages = Math.ceil(totalItems / +limit)
+
+        // truy vấn lấy kết quả
+        querySearch += ` \n LIMIT ${+limit} OFFSET ${skip}`
         const [rooms] = await connection.execute(querySearch)
-
-        const totalItems = rooms.length
-        const totalPages = Math.ceil(totalItems / limit)
 
         return {
             items: rooms,
-            limit,
             totalItems,
             totalPages,
-            page,
-            limit,
+            page: +page,
+            limit: +limit,
         }
     } catch (error) {
         throw new Error(error?.message || 'Có lỗi xảy ra')

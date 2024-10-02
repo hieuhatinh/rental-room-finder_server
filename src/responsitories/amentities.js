@@ -4,4 +4,8 @@ async function getAllAmentities() {
     return await Amentity.getAllAmentities()
 }
 
-export default { getAllAmentities }
+async function getAmentitiesId({ names }) {
+    return await Amentity.getAmentitiesId({ names })
+}
+
+export default { getAllAmentities, getAmentitiesId }

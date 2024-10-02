@@ -5,8 +5,11 @@ import authRouter from './auth.js'
 import fileRouter from './file.js'
 import landlordRoomRouter from './landlord/room.js'
 import tenantRoomsRouter from './tenant/rooms.js'
+import chatbotRouter from './chatbot.js'
 
 function routes(app) {
+    // tenant
+    app.use('/chatbot', chatbotRouter)
     app.use('/auth', authRouter)
     app.use('/file', fileRouter)
     app.use('/amentities', amentitiesRouter)

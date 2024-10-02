@@ -6,8 +6,22 @@ async function getAllAmentities() {
 
         return amentities
     } catch (error) {
-        throw new Error('Có lỗi xảy ra')
+        throw new Error(error.message || 'Có lỗi xảy ra')
     }
 }
 
-export default { getAllAmentities }
+async function getAmentitiesId({ names }) {
+    try {
+        names = names.map((item) => `'${item}'`).join(', ')
+        const [amentitiesId] = await connection.query(
+            `SELECT amentities.id_amentity FROM amentities 
+            WHERE amentities.amentity_name IN (${names})`,
+        )
+
+        return amentitiesId
+    } catch (error) {
+        throw new Error(error.message || 'Có lỗi xảy ra')
+    }
+}
+
+export default { getAllAmentities, getAmentitiesId }

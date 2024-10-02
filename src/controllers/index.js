@@ -4,6 +4,7 @@ import * as adminController from './admin/index.js'
 import amentitiesController from './amentities.js'
 import * as landlordController from './landlord/index.js'
 import * as tenantController from './tenant/index.js'
+import chatbotController from './chatbot.js'
 
 export {
     authController,
@@ -12,4 +13,5 @@ export {
     amentitiesController,
     landlordController,
     tenantController,
+    chatbotController,
 }
