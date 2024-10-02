@@ -3,16 +3,17 @@ import { connection } from '../database/index.js'
 // tenant
 async function getSomeRooms() {
     try {
-        const query = `SELECT rooms.*, landlords.*, room_images.image_url FROM rooms  
-                        JOIN landlords ON landlords.id_landlord = rooms.id_landlord
+        const query = `select distinct * from rooms
+                        JOIN room_images on room_images.id_room = rooms.id_room
                         JOIN (
-                            SELECT id_room, MIN(image_url) as image_url
-                            FROM room_images
+                            SELECT id_room, MIN(id_image) as id_image FROM room_images
                             GROUP BY id_room
-                        ) as room_images ON room_images.id_room = rooms.id_room
+                        ) as image on image.id_image = room_images.id_image
+                        JOIN landlords ON landlords.id_landlord = rooms.id_landlord
                         WHERE rooms.is_accept = 1
                         ORDER BY rooms.price
-                        LIMIT 20;`
+                        LIMIT 20`
+
         const [someRooms] = await connection.execute(query)
 
         return someRooms
@@ -38,16 +39,16 @@ async function searchRooms({
     try {
         radius = radius * 1000
 
-        let querySearch = `SELECT rooms.*, landlords.phone_number, room_images.image_url, 
+        let querySearch = `SELECT DISTINCT rooms.*, landlords.phone_number, room_images.*, 
                                 ST_Distance_Sphere(location, ST_SRID(Point(${+lon}, ${+lat}), 4326)) AS distance,
                                 group_concat(concat(amentities.id_amentity, ":", amentities.amentity_name) separator ',') as list_amentity
                             FROM rooms
                             JOIN landlords ON landlords.id_landlord = rooms.id_landlord
+                            JOIN room_images ON room_images.id_room = rooms.id_room
                             JOIN (
-                                SELECT id_room, MIN(image_url) as image_url
-                                FROM room_images
+                                SELECT id_room, MIN(id_image) as id_image FROM room_images
                                 GROUP BY id_room
-                            ) as room_images ON room_images.id_room = rooms.id_room
+                            ) as image on image.id_image = room_images.id_image
                             JOIN room_amentities ON room_amentities.id_room = rooms.id_room
                             JOIN amentities ON amentities.id_amentity = room_amentities.id_amentity
                             WHERE ST_Distance_Sphere(location, ST_SRID(Point(${+lon}, ${+lat}), 4326)) < ${radius} 
@@ -81,7 +82,7 @@ async function searchRooms({
             querySearch += ` AND (` + conditions.join('\n OR ') + ')'
         }
 
-        querySearch += ` \n GROUP BY rooms.id_room
+        querySearch += ` \n GROUP BY rooms.id_room, room_images.id_image
                         ORDER BY distance ASC, rooms.price ASC`
 
         // truy vấn đếm tổng số bản ghi thỏa mãn
@@ -101,6 +102,7 @@ async function searchRooms({
             limit: +limit,
         }
     } catch (error) {
+        console.log(error)
         throw new Error(error?.message || 'Có lỗi xảy ra')
     }
 }
@@ -325,14 +327,12 @@ async function getDetailUnacceptRoom({ id_landlord, id_room }) {
                                 landlords.*, users.full_name, users.gender,
                                 landlords.address_name as address_landlord,
                                 TIMESTAMPDIFF(YEAR, landlords.birth_date, CURDATE()) AS age,
-                                GROUP_CONCAT(DISTINCT amentities.amentity_name) AS amentities,
-                                GROUP_CONCAT(DISTINCT room_images.image_url) AS images
+                                GROUP_CONCAT(DISTINCT amentities.amentity_name) AS amentities
                            FROM rooms 
                    JOIN landlords ON landlords.id_landlord = rooms.id_landlord 
                    JOIN users ON users.id_user = landlords.id_landlord 
                    JOIN room_amentities ON room_amentities.id_room = rooms.id_room
                    JOIN amentities ON amentities.id_amentity = room_amentities.id_amentity
-                   JOIN room_images ON room_images.id_room = rooms.id_room
                    WHERE rooms.is_accept = ? AND rooms.id_room = ? AND rooms.id_landlord = ?
                    GROUP BY rooms.id_room, landlords.id_landlord`
         const [detailUnacceptRoom] = await connection.execute(query, [
@@ -341,8 +341,21 @@ async function getDetailUnacceptRoom({ id_landlord, id_room }) {
             id_landlord,
         ])
 
-        return detailUnacceptRoom[0]
+        const [images] = await connection.execute(
+            `SELECT room_images.* FROM room_images 
+                                    JOIN rooms ON rooms.id_room = room_images.id_room
+                                    WHERE rooms.is_accept = ? AND rooms.id_room = ? AND rooms.id_landlord = ?`,
+            [0, id_room, id_landlord],
+        )
+
+        console.log(images)
+
+        return {
+            ...detailUnacceptRoom[0],
+            images,
+        }
     } catch (error) {
+        console.log(error)
         throw new Error(error?.message || 'Có lỗi xảy ra')
     }
 }
