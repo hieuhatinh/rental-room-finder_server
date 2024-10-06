@@ -10,6 +10,7 @@ import getIdFromToken from '../utils/getIdFromToken.js'
 import { UserModelMySQL } from '../models/index.js'
 import { chatResponsitories } from '../responsitories/index.js'
 import socketAddNewRoom from './newRoom.js'
+import socketAddNewAmentity from './newAmentity.js'
 
 const app = express()
 
@@ -200,6 +201,9 @@ io.on('connection', async (socket) => {
 
     // emit add new room
     socketAddNewRoom(socket, io)
+
+    // emit add new amentity
+    socketAddNewAmentity(socket, io)
 
     // disconnect
     socket.on('disconnect', () => {
