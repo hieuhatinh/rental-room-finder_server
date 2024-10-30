@@ -12,7 +12,7 @@ async function getSomeRooms() {
                         JOIN landlords ON landlords.id_landlord = rooms.id_landlord
                         WHERE rooms.is_accept = 1
                         ORDER BY rooms.price
-                        LIMIT 20`
+                        LIMIT 12`
 
         const [someRooms] = await connection.execute(query)
 
