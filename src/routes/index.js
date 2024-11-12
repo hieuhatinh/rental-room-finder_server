@@ -7,6 +7,7 @@ import landlordRoomRouter from './landlord/room.js'
 import tenantRoomsRouter from './tenant/rooms.js'
 import roommateRequestRouter from './tenant/roommateRequest.js'
 import chatbotRouter from './chatbot.js'
+import voiceSearchRouter from './tenant/voiceSearch.js'
 
 function routes(app) {
     // tenant
@@ -16,6 +17,7 @@ function routes(app) {
     app.use('/amentities', amentitiesRouter)
     app.use('/tenant', tenantRoomsRouter)
     app.use('/tenant/roommate-request', roommateRequestRouter)
+    app.use('/tenant/voice-search', voiceSearchRouter)
 
     // landlord
     app.use('/landlord/manage', landlordRoomRouter)
