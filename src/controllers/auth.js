@@ -87,10 +87,12 @@ const loginWithUsername = async (req, res) => {
 // tenant
 const registerWithUsername = async (req, res) => {
     try {
-        const { username, password } = req.body
+        const { username, password, gender, full_name } = req.body
         const result = await authResponsitories.register({
             username,
             password,
+            gender,
+            fullName: full_name,
         })
         return res.status(200).json({
             result,

@@ -4,6 +4,7 @@ import { ConversationModel, MessageModel } from './mongodb/ConversationModel.js'
 import UserModelMG from './mongodb/UserModelMG.js'
 import Amentity from './Amentity.js'
 import Room from './Room.js'
+import RoommateRequest from './RoommateRequest.js'
 
 export {
     UserModelMySQL,
@@ -13,4 +14,5 @@ export {
     MessageModel,
     Amentity,
     Room,
+    RoommateRequest,
 }
