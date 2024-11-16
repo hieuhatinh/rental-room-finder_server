@@ -15,10 +15,10 @@ function computeEuclideanDistance(newSample, samples) {
 }
 
 function vectorize(requestInfo, hobbiesCategories, habitsCategories) {
-    let habits = requestInfo.habits.split(', ')
+    let habits = requestInfo.habits
     habits = onehotEncoding(habitsCategories, habits)
 
-    let hobbies = requestInfo.hobbies.split(', ')
+    let hobbies = requestInfo.hobbies
     hobbies = onehotEncoding(hobbiesCategories, hobbies)
 
     return [...habits, ...hobbies]

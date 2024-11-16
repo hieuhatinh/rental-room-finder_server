@@ -10,11 +10,6 @@ const getMyPosts = async ({ id_tenant, page, limit, skip }) => {
 }
 
 const newRequest = async (values) => {
-    values = {
-        ...values,
-        habits: values.habits.join(', '),
-        hobbies: values.hobbies.join(', '),
-    }
     return await RoommateRequest.createNewRequest(values)
 }
 
