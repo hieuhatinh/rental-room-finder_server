@@ -22,20 +22,13 @@ const addNewLandlord = async ({
         role: roles.landlord,
         gender,
         avatar: profile_img,
+        profile_img,
+        birth_date,
+        phone_number,
+        address,
     })
 
-    if (result) {
-        const newUser = await UserModelMySQL.getAuth({ username })
-        const newLandlord = await UserModelMySQL.createNewLandlord({
-            id_landlord: newUser[0].id_user,
-            profile_img,
-            birth_date,
-            phone_number,
-            address,
-        })
-
-        return { ...newUser, ...newLandlord }
-    }
+    return result
 }
 
 const getLandlords = async ({ page, skip, limit }) => {

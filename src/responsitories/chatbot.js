@@ -32,7 +32,6 @@ const sessionClient = new dialogflow.SessionsClient({
 // }
 
 const textQuery = async ({ text, currentSessionId }) => {
-    console.log({ currentSessionId })
     const sessionPath = sessionClient.sessionPath(
         configPrivateKey.googleDialogflowProjectId,
         configPrivateKey.dialogflowSessionID,

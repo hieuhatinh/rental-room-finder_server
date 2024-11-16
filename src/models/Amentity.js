@@ -127,8 +127,6 @@ async function findLandlordRelatedAmentity({ amentity }) {
             [amentity.id_amentity],
         )
 
-        console.log(idLandlords)
-
         let result = []
 
         idLandlords.forEach(

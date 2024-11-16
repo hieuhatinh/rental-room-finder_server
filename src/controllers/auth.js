@@ -121,10 +121,11 @@ const updateInfomation = async (req, res) => {
     try {
         const id_user = req.user.id
 
-        const { avatar, full_name } = req.body
+        const { avatar, full_name, gender } = req.body
         const newInfoUser = await authResponsitories.updateInfomation({
             avatar,
             full_name,
+            gender,
             id_user,
         })
 
