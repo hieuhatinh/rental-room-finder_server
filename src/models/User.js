@@ -4,9 +4,16 @@ import UserModelMG from './mongodb/UserModelMG.js'
 
 async function getAuth({ email = null, username = null }) {
     try {
-        const query = 'SELECT * from users WHERE email=? or username=?'
-        const values = [email, username]
-        const [existUser] = await connection.execute(query, values)
+        let existUser = null
+        if (!!email) {
+            const query = 'SELECT * from tenants WHERE email=?'
+            const [user] = await connection.execute(query, [email])
+            existUser = user
+        } else if (!!username) {
+            const query = 'SELECT * from users WHERE username=?'
+            const [user] = await connection.execute(query, [username])
+            existUser = user
+        }
         return existUser
     } catch (error) {
         throw new Error(error || 'Có lỗi xảy ra')
@@ -44,7 +51,11 @@ async function createNewUser({
     avatar = null,
     fullName = null,
     gender = null,
-    role = roles.tenant,
+    profile_img = null,
+    birth_date = null,
+    phone_number = null,
+    address = null,
+    role,
 }) {
     try {
         const newIdUser = new UserModelMG({
@@ -54,13 +65,13 @@ async function createNewUser({
         })
         await newIdUser.save()
 
-        const query =
-            'INSERT INTO users (id_user, `email`, `username`, `google_id`, `hash_password`, `avatar`, `full_name`, gender, `role`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        const query = `
+            INSERT INTO users (id_user, username, hash_password, avatar, full_name, gender, role) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `
         const values = [
             newIdUser._id.toString(),
-            email,
             username,
-            googleId,
             hash_password,
             avatar,
             fullName,
@@ -68,36 +79,54 @@ async function createNewUser({
             role,
         ]
         const [newUser] = await connection.execute(query, values)
+        const [user] = await getAuth({ email, username })
 
         if (role === roles.tenant) {
-            const [user] = await getAuth({ email, username })
-            const values = [user.id_user]
+            const tenantValues = [newIdUser._id.toString(), email, googleId]
             await connection.execute(
-                'INSERT INTO tenants (id_tenant) VALUES (?)',
-                values,
+                'INSERT INTO tenants (id_tenant, email, google_id) VALUES (?, ?, ?)',
+                tenantValues,
             )
+        } else if (role === roles.landlord) {
+            await createNewLandlord({
+                id_landlord: newIdUser._id.toString(),
+                profile_img,
+                birth_date,
+                phone_number,
+                address,
+            })
         }
-        return newUser
+
+        return user
     } catch (error) {
         throw new Error(error || 'Có lỗi xảy ra')
     }
 }
 
-async function updateInformation({ avatar, full_name, id_user }) {
+async function updateInformation({ avatar, full_name, id_user, gender }) {
     try {
-        const query = 'UPDATE users SET full_name=?, avatar=? WHERE id_user=?'
-        const values = [full_name, avatar, id_user]
-        const [userInfoUpdate] = await connection.execute(query, values)
+        let userInfoUpdate
+        if (!!avatar || !!full_name) {
+            const query =
+                'UPDATE users SET full_name=?, avatar=? WHERE id_user=?'
+            const values = [full_name, avatar, id_user]
+            let [update] = await connection.execute(query, values)
+            userInfoUpdate = update
 
-        await UserModelMG.updateOne(
-            {
-                _id: id_user,
-            },
-            {
-                full_name,
-                avatar,
-            },
-        )
+            await UserModelMG.updateOne(
+                {
+                    _id: id_user,
+                },
+                {
+                    full_name,
+                    avatar,
+                },
+            )
+        } else if (!!gender) {
+            const query = 'UPDATE users SET gender=? WHERE id_user=?'
+            let [update] = await connection.execute(query, [gender, id_user])
+            userInfoUpdate = update
+        }
 
         return userInfoUpdate
     } catch (error) {

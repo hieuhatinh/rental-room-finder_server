@@ -1,6 +1,7 @@
 import argon2 from 'argon2'
 
 import { UserModelMySQL } from '../models/index.js'
+import roles from '../utils/roles.js'
 
 // register tenant/admin/landlord
 const register = async ({
@@ -25,7 +26,7 @@ const register = async ({
     const newUser = await UserModelMySQL.createNewUser({
         username,
         hash_password: hashPassword,
-        role,
+        role: roles.tenant,
         fullName,
         gender,
         avatar,
@@ -64,7 +65,7 @@ const loginSuccess = async ({ id_user }) => {
 }
 
 // tenant
-const updateInfomation = async ({ avatar, full_name, id_user }) => {
+const updateInfomation = async ({ avatar, full_name, gender, id_user }) => {
     const existingUser = await UserModelMySQL.getById({ id_user })
     if (!existingUser[0]) {
         throw new Error('Không tồn tại người dùng')
@@ -73,6 +74,7 @@ const updateInfomation = async ({ avatar, full_name, id_user }) => {
     await UserModelMySQL.updateInformation({
         avatar,
         full_name,
+        gender,
         id_user,
     })
 

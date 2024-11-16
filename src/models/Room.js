@@ -102,7 +102,6 @@ async function searchRooms({
             limit: +limit,
         }
     } catch (error) {
-        console.log(error)
         throw new Error(error?.message || 'Có lỗi xảy ra')
     }
 }
@@ -348,14 +347,11 @@ async function getDetailUnacceptRoom({ id_landlord, id_room }) {
             [0, id_room, id_landlord],
         )
 
-        console.log(images)
-
         return {
             ...detailUnacceptRoom[0],
             images,
         }
     } catch (error) {
-        console.log(error)
         throw new Error(error?.message || 'Có lỗi xảy ra')
     }
 }

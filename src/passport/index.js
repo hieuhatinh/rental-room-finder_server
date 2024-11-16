@@ -3,6 +3,7 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
 import * as dotenv from 'dotenv'
 
 import { UserModelMySQL } from '../models/index.js'
+import roles from '../utils/roles.js'
 
 dotenv.config()
 
@@ -31,6 +32,8 @@ passport.use(
                     googleId: profile.id,
                     avatar: profile._json.picture,
                     fullName: profile._json.name,
+                    role: roles.tenant,
+                    gender: 'unknown',
                 })
                 const newUser = await UserModelMySQL.getAuth({
                     email: profile._json.email,
@@ -42,7 +45,7 @@ passport.use(
 )
 
 passport.serializeUser((user, done) => {
-    done(null, user.id_user)
+    done(null, user.id_user || user.id_tenant)
 })
 
 passport.deserializeUser(async (id_user, done) => {
