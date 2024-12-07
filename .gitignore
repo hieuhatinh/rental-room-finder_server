@@ -1,0 +1,6 @@
+/node_modules
+
+/src/private
+
+.env
+speech-api-key.json
