@@ -5,13 +5,18 @@ function onehotEncoding(categories, inputArray) {
     return categories.map((item) => (inputArray.includes(item) ? 1 : 0))
 }
 
-function computeEuclideanDistance(newSample, samples) {
-    let samplesMatrix = tf.tensor(samples)
-    let newSampleVector = tf.tensor(newSample)
-    let differences = samplesMatrix.sub(newSampleVector)
-    let distance = tf.sqrt(tf.sum(differences.square(), 1))
+function computeCosineSimilarityScore(newSample, samples) {
+    const samplesMatrix = tf.tensor(samples)
+    const newSampleVector = tf.tensor(newSample).reshape([-1, 1])
+    const scalarProduct = tf.matMul(samplesMatrix, newSampleVector)
+    const samplesNorm = tf.sqrt(tf.sum(tf.square(samplesMatrix), 1))
+    const newSampleNorm = tf.sqrt(tf.sum(tf.square(newSampleVector)))
+    const cosineSimilarity = tf.div(
+        scalarProduct.reshape([-1]),
+        tf.mul(samplesNorm, newSampleNorm),
+    )
 
-    return distance
+    return cosineSimilarity
 }
 
 function vectorize(requestInfo, hobbiesCategories, habitsCategories) {
@@ -25,18 +30,23 @@ function vectorize(requestInfo, hobbiesCategories, habitsCategories) {
 }
 
 function knnModel(samples, newSample, k = 5) {
-    let distanceOfSamples = computeEuclideanDistance(newSample, samples)
-    let distanceArray = distanceOfSamples.arraySync()
+    let cosineSimilarity = computeCosineSimilarityScore(newSample, samples)
+    let cosineArray = cosineSimilarity.arraySync()
 
-    let kSamples = distanceArray
+    let kSamples = cosineArray
         .map((value, index) => ({
             value,
             index,
         }))
-        .sort((a, b) => a.value - b.value)
+        .sort((a, b) => b.value - a.value)
         .slice(0, k)
         .map((item) => item)
     return kSamples
 }
 
-export { onehotEncoding, computeEuclideanDistance, knnModel as knn, vectorize }
+export {
+    onehotEncoding,
+    computeCosineSimilarityScore,
+    knnModel as knn,
+    vectorize,
+}

@@ -65,9 +65,11 @@ async function createNewRequest(values) {
 async function getHobbies() {
     try {
         const [uniqueHobbies] = await connection.execute(
-            `SELECT DISTINCT hobby_name FROM roommate_hobbies`,
+            `SELECT 
+                JSON_ARRAYAGG(roommate_hobbies.hobby_name) AS unique_hobbies 
+             FROM roommate_hobbies`,
         )
-        return uniqueHobbies
+        return uniqueHobbies[0]
     } catch (error) {
         throw new Error(error?.message || 'Có lỗi xảy ra')
     }
@@ -76,9 +78,11 @@ async function getHobbies() {
 async function getHabits() {
     try {
         const [uniqueHabits] = await connection.execute(
-            `SELECT DISTINCT habit_name FROM roommate_habits`,
+            `SELECT 
+                JSON_ARRAYAGG(roommate_habits.habit_name) AS unique_habits 
+             FROM roommate_habits`,
         )
-        return uniqueHabits
+        return uniqueHabits[0]
     } catch (error) {
         throw new Error(error?.message || 'Có lỗi xảy ra')
     }
@@ -159,7 +163,7 @@ async function searchWithGenderAndLocation({
 
 async function getAll({ id_tenant, page, limit, skip }) {
     try {
-        let querySearch = `SELECT DISTINCT 
+        let querySearch = `SELECT
                                 rr.*, 
                                 users.username, 
                                 users.avatar, 

@@ -17,9 +17,15 @@ const search = async (values) => {
     const hobbiesCategories = await RoommateRequest.getHobbies()
     const habitsCategories = await RoommateRequest.getHabits()
 
+    const categoriesHobbiesArr = [...hobbiesCategories?.unique_hobbies]
+    const categoriesHabitsArr = [...habitsCategories?.unique_habits]
+
     // vector input values
-    let inputHabitsOnehot = onehotEncoding(habitsCategories, values.habits)
-    let inputHobbiesOnehot = onehotEncoding(hobbiesCategories, values.hobbies)
+    let inputHabitsOnehot = onehotEncoding(categoriesHabitsArr, values.habits)
+    let inputHobbiesOnehot = onehotEncoding(
+        categoriesHobbiesArr,
+        values.hobbies,
+    )
     let vectorInput = [...inputHabitsOnehot, ...inputHobbiesOnehot]
 
     // tìm kiếm các kết quả phù hợp với gender, location, amentities
@@ -41,7 +47,7 @@ const search = async (values) => {
 
     // vectorize data trả về
     const vectors = data.items.map((item) =>
-        vectorize(item, hobbiesCategories, habitsCategories),
+        vectorize(item, categoriesHobbiesArr, categoriesHabitsArr),
     )
 
     // model knn
@@ -51,7 +57,7 @@ const search = async (values) => {
         ...data,
         items: resultOfKNN.map((item) => ({
             ...data.items[item.index],
-            euclideanDistance: item.value,
+            cosineSimilarityScore: item.value,
         })),
     }
 }
