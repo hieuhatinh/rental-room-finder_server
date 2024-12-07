@@ -75,12 +75,14 @@ const search = async (req, res) => {
             id_tenant,
             skip: skip({ page: values.page, limit: values.limit }),
         })
+        console.log(result)
 
         return res.status(200).json({
             requests: result,
             message: 'Tìm kiếm thành công',
         })
     } catch (error) {
+        console.log(error)
         return res.status(error.statusCode || 400).json({
             error: true,
             message: error.message || 'Có lỗi xảy ra',
