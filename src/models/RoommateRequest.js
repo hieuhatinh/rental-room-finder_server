@@ -88,11 +88,19 @@ async function getHabits() {
     }
 }
 
+async function getMaxMinRoomPrice() {
+    let query = `SELECT 
+                    MAX(price) as maxPrice, 
+                    MIN(price) as minPrice
+                 FROM roommate_request`
+    const [result] = await connection.execute(query)
+    return result[0]
+}
+
 async function searchWithGenderAndLocation({
     lat,
     lon,
     gender,
-    amentities,
     radius = 5,
     id_tenant,
     page,
@@ -134,7 +142,6 @@ async function searchWithGenderAndLocation({
                                 rr.id_tenant <> ?
                                 AND rr.gender = ${gender}
                                 AND ST_Distance_Sphere(location, ST_SRID(Point(${+lon}, ${+lat}), 4326)) < ${radius}
-                                AND ra.id_amentity IN (${amentities.join(',')})
                             GROUP BY 
                                 rr.id
                             ORDER BY 
@@ -298,4 +305,5 @@ export default {
     getAll,
     getMyPosts,
     deletePost,
+    getMaxMinRoomPrice,
 }

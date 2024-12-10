@@ -1,5 +1,5 @@
-import { knn, onehotEncoding, vectorize } from '../../ml/knn.js'
-import { RoommateRequest } from '../../models/index.js'
+import { knn, minMaxScale, onehotEncoding, vectorize } from '../../ml/knn.js'
+import { Amentity, RoommateRequest } from '../../models/index.js'
 
 const getAll = async ({ id_tenant, page, limit, skip }) => {
     return await RoommateRequest.getAll({ id_tenant, page, limit, skip })
@@ -14,8 +14,11 @@ const newRequest = async (values) => {
 }
 
 const search = async (values) => {
+    let amentities = await Amentity.getAllAmentitiesTenant()
+    amentities = amentities.map((item) => item.id_amentity)
     const hobbiesCategories = await RoommateRequest.getHobbies()
     const habitsCategories = await RoommateRequest.getHabits()
+    const { minPrice, maxPrice } = await RoommateRequest.getMaxMinRoomPrice()
 
     const categoriesHobbiesArr = [...hobbiesCategories?.unique_hobbies]
     const categoriesHabitsArr = [...habitsCategories?.unique_habits]
@@ -26,7 +29,14 @@ const search = async (values) => {
         categoriesHobbiesArr,
         values.hobbies,
     )
-    let vectorInput = [...inputHabitsOnehot, ...inputHobbiesOnehot]
+    let inputAmentitiesOnehot = onehotEncoding(amentities, values.amentities)
+    let xInputScale = minMaxScale(+values.price, +minPrice, +maxPrice)
+    let vectorInput = [
+        xInputScale,
+        inputAmentitiesOnehot,
+        ...inputHabitsOnehot,
+        ...inputHobbiesOnehot,
+    ]
 
     // tìm kiếm các kết quả phù hợp với gender, location, amentities
     const data = await RoommateRequest.searchWithGenderAndLocation({
@@ -47,7 +57,14 @@ const search = async (values) => {
 
     // vectorize data trả về
     const vectors = data.items.map((item) =>
-        vectorize(item, categoriesHobbiesArr, categoriesHabitsArr),
+        vectorize(
+            item,
+            +minPrice,
+            +maxPrice,
+            amentities,
+            categoriesHobbiesArr,
+            categoriesHabitsArr,
+        ),
     )
 
     // model knn
