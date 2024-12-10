@@ -5,6 +5,10 @@ function onehotEncoding(categories, inputArray) {
     return categories.map((item) => (inputArray.includes(item) ? 1 : 0))
 }
 
+function minMaxScale(x, minPrice, maxPrice) {
+    return (x - minPrice) / (maxPrice - minPrice)
+}
+
 function computeCosineSimilarityScore(newSample, samples) {
     const samplesMatrix = tf.tensor(samples)
     const newSampleVector = tf.tensor(newSample).reshape([-1, 1])
@@ -19,14 +23,25 @@ function computeCosineSimilarityScore(newSample, samples) {
     return cosineSimilarity
 }
 
-function vectorize(requestInfo, hobbiesCategories, habitsCategories) {
+function vectorize(
+    requestInfo,
+    minPrice,
+    maxPrice,
+    amentities,
+    hobbiesCategories,
+    habitsCategories,
+) {
     let habits = requestInfo.habits
     habits = onehotEncoding(habitsCategories, habits)
 
     let hobbies = requestInfo.hobbies
     hobbies = onehotEncoding(hobbiesCategories, hobbies)
+    let amentitiesInfo = requestInfo.amentities.map((item) => item.amentity_id)
+    amentitiesInfo = onehotEncoding(amentities, amentitiesInfo)
 
-    return [...habits, ...hobbies]
+    let priceScale = minMaxScale(requestInfo.price, minPrice, maxPrice)
+
+    return [priceScale, amentitiesInfo, ...habits, ...hobbies]
 }
 
 function knnModel(samples, newSample, k = 5) {
@@ -49,4 +64,5 @@ export {
     computeCosineSimilarityScore,
     knnModel as knn,
     vectorize,
+    minMaxScale,
 }
