@@ -10,7 +10,7 @@ async function getSomeRooms() {
                             GROUP BY id_room
                         ) as image on image.id_image = room_images.id_image
                         JOIN landlords ON landlords.id_landlord = rooms.id_landlord
-                        WHERE rooms.is_accept = 1
+                        WHERE rooms.status = 1
                         ORDER BY rooms.price
                         LIMIT 12`
 
@@ -52,7 +52,7 @@ async function searchRooms({
                             JOIN room_amentities ON room_amentities.id_room = rooms.id_room
                             JOIN amentities ON amentities.id_amentity = room_amentities.id_amentity
                             WHERE ST_Distance_Sphere(location, ST_SRID(Point(${+lon}, ${+lat}), 4326)) < ${radius} 
-                                    AND rooms.is_accept = 1
+                                    AND rooms.status = 1
                             `
 
         let conditions = []
@@ -110,7 +110,7 @@ async function getDetailRoom({ id_room }) {
     try {
         const query = `SELECT landlords.phone_number, rooms.* FROM rooms  
                         JOIN landlords ON landlords.id_landlord = rooms.id_landlord
-                        WHERE rooms.is_accept = 1 AND rooms.id_room = ?`
+                        WHERE rooms.status = 1 AND rooms.id_room = ?`
         const [infoRoom] = await connection.execute(query, [id_room])
 
         const [imagesRoom] = await connection.execute(
@@ -290,7 +290,7 @@ async function findAllUnacceptedRooms({ page, skip, limit }) {
                        FROM rooms 
                JOIN landlords ON landlords.id_landlord = rooms.id_landlord 
                JOIN users ON users.id_user = landlords.id_landlord 
-               WHERE rooms.is_accept = ? 
+               WHERE rooms.status = ? 
                LIMIT ${limit} OFFSET ${skip}`
         const [unacceptRooms] = await connection.execute(query, [0])
         return { unacceptRooms, page, limit, totalPages, totalItems }
@@ -302,7 +302,7 @@ async function findAllUnacceptedRooms({ page, skip, limit }) {
 async function countUnacceptedRooms() {
     try {
         const query =
-            'SELECT COUNT(*) as numberOfRecords FROM rooms WHERE is_accept=?'
+            'SELECT COUNT(*) as numberOfRecords FROM rooms WHERE status=?'
         const [numberOfRecords] = await connection.execute(query, [0])
         return numberOfRecords[0].numberOfRecords
     } catch (error) {
@@ -313,12 +313,12 @@ async function countUnacceptedRooms() {
 async function getDetailUnacceptRoom({ id_landlord, id_room }) {
     try {
         const [statusAcceptOfRoom] = await connection.execute(
-            `SELECT is_accept FROM rooms
+            `SELECT status FROM rooms
                                     WHERE id_room=? AND id_landlord=?`,
             [id_room, id_landlord],
         )
 
-        if (statusAcceptOfRoom[0]?.is_accept) {
+        if (statusAcceptOfRoom[0]?.status) {
             return statusAcceptOfRoom[0]
         }
 
@@ -332,7 +332,7 @@ async function getDetailUnacceptRoom({ id_landlord, id_room }) {
                    JOIN users ON users.id_user = landlords.id_landlord 
                    JOIN room_amentities ON room_amentities.id_room = rooms.id_room
                    JOIN amentities ON amentities.id_amentity = room_amentities.id_amentity
-                   WHERE rooms.is_accept = ? AND rooms.id_room = ? AND rooms.id_landlord = ?
+                   WHERE rooms.status = ? AND rooms.id_room = ? AND rooms.id_landlord = ?
                    GROUP BY rooms.id_room, landlords.id_landlord`
         const [detailUnacceptRoom] = await connection.execute(query, [
             0,
@@ -343,7 +343,7 @@ async function getDetailUnacceptRoom({ id_landlord, id_room }) {
         const [images] = await connection.execute(
             `SELECT room_images.* FROM room_images 
                                     JOIN rooms ON rooms.id_room = room_images.id_room
-                                    WHERE rooms.is_accept = ? AND rooms.id_room = ? AND rooms.id_landlord = ?`,
+                                    WHERE rooms.status = ? AND rooms.id_room = ? AND rooms.id_landlord = ?`,
             [0, id_room, id_landlord],
         )
 
@@ -360,16 +360,18 @@ async function updateStatusAccept({
     id_landlord,
     id_room,
     id_admin,
-    is_accept,
+    status,
+    comment = null,
 }) {
     try {
         const query = `UPDATE rooms
-                        SET accept_by=?, is_accept=?, accept_at=CURRENT_TIMESTAMP
+                        SET handled_by=?, status=?, handled_at=CURRENT_TIMESTAMP, comment=?
                         WHERE rooms.id_room=? AND rooms.id_landlord=?`
 
         const [result] = await connection.execute(query, [
             id_admin,
-            is_accept,
+            status,
+            comment,
             id_room,
             id_landlord,
         ])

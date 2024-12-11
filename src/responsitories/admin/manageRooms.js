@@ -58,10 +58,27 @@ const acceptRequest = async ({ id_landlord, id_room, id_admin }) => {
         id_landlord,
         id_room,
         id_admin,
-        is_accept: 1,
+        status: 1,
     })
 
     return result
 }
 
-export default { getRoomsUnAccepted, getDetailUnacceptRoom, acceptRequest }
+const rejectRequest = async ({ id_landlord, id_room, id_admin, reason }) => {
+    const result = await Room.updateStatusAccept({
+        id_landlord,
+        id_room,
+        id_admin,
+        status: 2,
+        comment: reason,
+    })
+
+    return result
+}
+
+export default {
+    getRoomsUnAccepted,
+    getDetailUnacceptRoom,
+    acceptRequest,
+    rejectRequest,
+}

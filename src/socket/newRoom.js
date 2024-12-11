@@ -22,8 +22,13 @@ function socketAddNewRoom(socket, io) {
     })
 
     // admin accept request
-    socket.on('accept-request', async () => {
-        socket.broadcast.emit('accept-request')
+    socket.on('accept-request', async (data) => {
+        socket.broadcast.emit('accept-request', data)
+    })
+
+    // admin accept request
+    socket.on('reject-request', async (data) => {
+        socket.broadcast.emit('reject-request', data)
     })
 
     // send socket to admin to delete room notification
