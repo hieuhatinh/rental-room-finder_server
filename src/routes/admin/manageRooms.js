@@ -26,4 +26,11 @@ adminManageRoomsRouter.patch(
     adminController.manageRooms.acceptRequest,
 )
 
+adminManageRoomsRouter.patch(
+    '/reject-request',
+    authenticateJwt,
+    checkAdminRole,
+    adminController.manageRooms.rejectRequest,
+)
+
 export default adminManageRoomsRouter
