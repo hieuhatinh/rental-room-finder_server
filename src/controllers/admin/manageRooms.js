@@ -74,4 +74,37 @@ const acceptRequest = async (req, res) => {
     }
 }
 
-export default { getRoomsUnAccepted, getDetailUnacceptRoom, acceptRequest }
+const rejectRequest = async (req, res) => {
+    try {
+        let { id_landlord, id_room, reason } = req.body
+        const result = await adminResponsitories.manageRooms.rejectRequest({
+            id_landlord,
+            id_room,
+            id_admin: req.user.id,
+            reason,
+        })
+
+        return res.status(200).json({
+            result: {
+                is_accept: true,
+                id_landlord,
+                id_room,
+            },
+            success: true,
+            message: 'Đã gửi yêu cầu sửa đổi',
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json({
+            error: true,
+            message: error.message,
+        })
+    }
+}
+
+export default {
+    getRoomsUnAccepted,
+    getDetailUnacceptRoom,
+    acceptRequest,
+    rejectRequest,
+}
